@@ -1,0 +1,4 @@
+# Nmap 6.40 scan initiated Wed Jan  1 13:32:13 2014 as: nmap -n -v -sP -PE -PP -PS21,22,23,25,80,443,113,21339 -PA80,113,443,10042 --source_port 53 -oA scans/00_ping_sweep www.js.com
+# Ports scanned: TCP(0;) UDP(0;) SCTP(0;) PROTOCOLS(0;)
+Host: 84.22.186.21 ()	Status: Up
+# Nmap done at Wed Jan  1 13:32:13 2014 -- 1 IP address (1 host up) scanned in 0.18 seconds

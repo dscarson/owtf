@@ -1,0 +1,4 @@
+# Nmap 6.40 scan initiated Wed Jan  1 13:32:13 2014 as: nmap -PN -n -sS -p 53 -iL scans/00_ping_sweep.ips -oA scans/01_dns_info
+Host: 84.22.186.21 ()	Status: Up
+Host: 84.22.186.21 ()	Ports: 53/filtered/tcp//domain///
+# Nmap done at Wed Jan  1 13:32:15 2014 -- 1 IP address (1 host up) scanned in 2.11 seconds

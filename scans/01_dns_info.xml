@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 6.40 scan initiated Wed Jan  1 13:32:13 2014 as: nmap -PN -n -sS -p 53 -iL scans/00_ping_sweep.ips -oA scans/01_dns_info -->
+<nmaprun scanner="nmap" args="nmap -PN -n -sS -p 53 -iL scans/00_ping_sweep.ips -oA scans/01_dns_info" start="1388611933" startstr="Wed Jan  1 13:32:13 2014" version="6.40" xmloutputversion="1.04">
+<scaninfo type="syn" protocol="tcp" numservices="1" services="53"/>
+<verbose level="0"/>
+<debugging level="0"/>
+<host starttime="1388611933" endtime="1388611935"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="84.22.186.21" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="53"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="domain" method="table" conf="3"/></port>
+</ports>
+</host>
+<runstats><finished time="1388611935" timestr="Wed Jan  1 13:32:15 2014" elapsed="2.11" summary="Nmap done at Wed Jan  1 13:32:15 2014; 1 IP address (1 host up) scanned in 2.11 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>

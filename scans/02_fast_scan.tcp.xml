@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<?xml-stylesheet href="file:///usr/bin/../share/nmap/nmap.xsl" type="text/xsl"?>
+<!-- Nmap 6.40 scan initiated Wed Jan  1 13:32:17 2014 as: nmap -PN -n -v -&#45;min-parallelism=10 -iL scans/00_ping_sweep.ips -sS -sV -O -oA scans/02_fast_scan.tcp -p 7,9,13,21-23,25-26,37,53,79-81,88,106 -->
+<nmaprun scanner="nmap" args="nmap -PN -n -v -&#45;min-parallelism=10 -iL scans/00_ping_sweep.ips -sS -sV -O -oA scans/02_fast_scan.tcp -p 7,9,13,21-23,25-26,37,53,79-81,88,106" start="1388611937" startstr="Wed Jan  1 13:32:17 2014" version="6.40" xmloutputversion="1.04">
+<scaninfo type="syn" protocol="tcp" numservices="15" services="7,9,13,21-23,25-26,37,53,79-81,88,106"/>
+<verbose level="1"/>
+<debugging level="0"/>
+<taskbegin task="SYN Stealth Scan" time="1388611937"/>
+<taskend task="SYN Stealth Scan" time="1388611941" extrainfo="15 total ports"/>
+<taskbegin task="Service scan" time="1388611941"/>
+<taskend task="Service scan" time="1388611947" extrainfo="1 service on 1 host"/>
+<host starttime="1388611937" endtime="1388611954"><status state="up" reason="user-set" reason_ttl="0"/>
+<address addr="84.22.186.21" addrtype="ipv4"/>
+<hostnames>
+</hostnames>
+<ports><port protocol="tcp" portid="7"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="echo" method="table" conf="3"/></port>
+<port protocol="tcp" portid="9"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="discard" method="table" conf="3"/></port>
+<port protocol="tcp" portid="13"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="daytime" method="table" conf="3"/></port>
+<port protocol="tcp" portid="21"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="22"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="ssh" method="table" conf="3"/></port>
+<port protocol="tcp" portid="23"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="telnet" method="table" conf="3"/></port>
+<port protocol="tcp" portid="25"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="smtp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="26"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="rsftp" method="table" conf="3"/></port>
+<port protocol="tcp" portid="37"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="time" method="table" conf="3"/></port>
+<port protocol="tcp" portid="53"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="domain" method="table" conf="3"/></port>
+<port protocol="tcp" portid="79"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="finger" method="table" conf="3"/></port>
+<port protocol="tcp" portid="80"><state state="open" reason="syn-ack" reason_ttl="64"/><service name="http" product="Microsoft IIS httpd" version="5.0" ostype="Windows" method="probed" conf="10"><cpe>cpe:/a:microsoft:iis:5.0</cpe><cpe>cpe:/o:microsoft:windows</cpe></service></port>
+<port protocol="tcp" portid="81"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="hosts2-ns" method="table" conf="3"/></port>
+<port protocol="tcp" portid="88"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="kerberos-sec" method="table" conf="3"/></port>
+<port protocol="tcp" portid="106"><state state="filtered" reason="no-response" reason_ttl="0"/><service name="pop3pw" method="table" conf="3"/></port>
+</ports>
+<os><portused state="open" proto="tcp" portid="80"/>
+<osmatch name="QEMU user mode network gateway" accuracy="95" line="65964">
+<osclass type="general purpose" vendor="QEMU" osfamily="QEMU" accuracy="95"><cpe>cpe:/o:qemu:qemu</cpe></osclass>
+</osmatch>
+<osmatch name="VxWorks" accuracy="88" line="703">
+<osclass type="general purpose" vendor="Wind River" osfamily="VxWorks" accuracy="88"><cpe>cpe:/o:windriver:vxworks</cpe></osclass>
+</osmatch>
+<osmatch name="Dell 1815dn printer" accuracy="88" line="17464">
+<osclass type="printer" vendor="Dell" osfamily="embedded" accuracy="88"><cpe>cpe:/h:dell:1815dn</cpe></osclass>
+</osmatch>
+<osmatch name="Xerox WorkCentre 4150 printer" accuracy="88" line="75240">
+<osclass type="printer" vendor="Xerox" osfamily="embedded" accuracy="88"><cpe>cpe:/h:xerox:workcentre_4150</cpe></osclass>
+</osmatch>
+<osmatch name="Slingmedia Slingbox AV TV over IP gateway" accuracy="87" line="69036">
+<osclass type="media device" vendor="Sling" osfamily="embedded" accuracy="87"><cpe>cpe:/h:slingmedia:slingbox_av</cpe></osclass>
+</osmatch>
+<osmatch name="Bay Networks BayStack 450 switch (software version 3.1.0.22)" accuracy="87" line="7474">
+<osclass type="switch" vendor="Bay Networks" osfamily="embedded" accuracy="87"><cpe>cpe:/h:baynetworks:baystack_450</cpe></osclass>
+</osmatch>
+<osmatch name="Bay Networks BayStack 450 switch (software version 4.2.0.16)" accuracy="87" line="7492">
+<osclass type="switch" vendor="Bay Networks" osfamily="embedded" accuracy="87"><cpe>cpe:/h:baynetworks:baystack_450</cpe></osclass>
+</osmatch>
+<osmatch name="Samsung CLP-310N or CLX-3175RW, or Xerox Phaser 6110 printer" accuracy="87" line="67203">
+<osclass type="printer" vendor="Samsung" osfamily="embedded" accuracy="87"><cpe>cpe:/h:samsung:clp-310n</cpe><cpe>cpe:/h:samsung:clx-3175rw</cpe></osclass>
+<osclass type="printer" vendor="Xerox" osfamily="embedded" accuracy="87"><cpe>cpe:/h:xerox:phaser_6110</cpe></osclass>
+</osmatch>
+<osmatch name="Tyco 24 Port SNMP Managed Switch" accuracy="87" line="72968">
+<osclass type="switch" vendor="Tyco" osfamily="embedded" accuracy="87"/>
+</osmatch>
+<osmatch name="Cabletron ELS100-24TXM Switch or Icom IC-7800 radio transceiver" accuracy="86" line="9871">
+<osclass type="switch" vendor="Cabletron" osfamily="embedded" accuracy="86"><cpe>cpe:/h:cabletron:els100-24txm</cpe></osclass>
+<osclass type="specialized" vendor="Icom" osfamily="embedded" accuracy="86"><cpe>cpe:/h:icom:ic-7800</cpe></osclass>
+</osmatch>
+</os>
+<tcpsequence index="17" difficulty="Good luck!" values="C3E1A401,C3E29E01,C3E39801,C3E58C01,C3E68601,C3E78001"/>
+<ipidsequence class="Incremental" values="2762,2763,2764,2765,2766,2767"/>
+<tcptssequence class="none returned (unsupported)"/>
+<times srtt="79769" rttvar="82518" to="409841"/>
+</host>
+<runstats><finished time="1388611954" timestr="Wed Jan  1 13:32:34 2014" elapsed="18.63" summary="Nmap done at Wed Jan  1 13:32:34 2014; 1 IP address (1 host up) scanned in 18.63 seconds" exit="success"/><hosts up="1" down="0" total="1"/>
+</runstats>
+</nmaprun>
