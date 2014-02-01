@@ -1,0 +1,29 @@
+# Nmap 6.40 scan initiated Wed Jan  1 13:32:17 2014 as: nmap -PN -n -v --min-parallelism=10 -iL scans/00_ping_sweep.ips -sS -sV -O -oA scans/02_fast_scan.tcp -p 7,9,13,21-23,25-26,37,53,79-81,88,106
+Nmap scan report for 84.22.186.21
+Host is up (0.080s latency).
+PORT    STATE    SERVICE      VERSION
+7/tcp   filtered echo
+9/tcp   filtered discard
+13/tcp  filtered daytime
+21/tcp  filtered ftp
+22/tcp  filtered ssh
+23/tcp  filtered telnet
+25/tcp  filtered smtp
+26/tcp  filtered rsftp
+37/tcp  filtered time
+53/tcp  filtered domain
+79/tcp  filtered finger
+80/tcp  open     http         Microsoft IIS httpd 5.0
+81/tcp  filtered hosts2-ns
+88/tcp  filtered kerberos-sec
+106/tcp filtered pop3pw
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: QEMU user mode network gateway (95%), VxWorks (88%), Dell 1815dn printer (88%), Xerox WorkCentre 4150 printer (88%), Slingmedia Slingbox AV TV over IP gateway (87%), Bay Networks BayStack 450 switch (software version 3.1.0.22) (87%), Bay Networks BayStack 450 switch (software version 4.2.0.16) (87%), Samsung CLP-310N or CLX-3175RW, or Xerox Phaser 6110 printer (87%), Tyco 24 Port SNMP Managed Switch (87%), Cabletron ELS100-24TXM Switch or Icom IC-7800 radio transceiver (86%)
+No exact OS matches for host (test conditions non-ideal).
+TCP Sequence Prediction: Difficulty=17 (Good luck!)
+IP ID Sequence Generation: Incremental
+Service Info: OS: Windows; CPE: cpe:/o:microsoft:windows
+
+Read data files from: /usr/bin/../share/nmap
+OS and Service detection performed. Please report any incorrect results at http://nmap.org/submit/ .
+# Nmap done at Wed Jan  1 13:32:34 2014 -- 1 IP address (1 host up) scanned in 18.63 seconds

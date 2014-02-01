@@ -25,11 +25,7 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-<<<<<<< HEAD
-Plugin for openvas service
-=======
 Plugin for probing ftp
->>>>>>> master
 """
 
 DESCRIPTION = " Openvas Scan "
@@ -38,8 +34,4 @@ def run(Core, PluginInfo):
     #Core.Config.Show()
     #print "Content="+Content
     Content = Core.PluginHelper.DrawCommandDump('Test Command', 'Output', Core.Config.GetResources('Openvas_Unauth'), PluginInfo, "") # No previous output
-<<<<<<< HEAD
     return Content
-=======
-    return Content
->>>>>>> master

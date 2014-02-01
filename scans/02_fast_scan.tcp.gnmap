@@ -1,0 +1,5 @@
+# Nmap 6.40 scan initiated Wed Jan  1 13:32:17 2014 as: nmap -PN -n -v --min-parallelism=10 -iL scans/00_ping_sweep.ips -sS -sV -O -oA scans/02_fast_scan.tcp -p 7,9,13,21-23,25-26,37,53,79-81,88,106
+# Ports scanned: TCP(15;7,9,13,21-23,25-26,37,53,79-81,88,106) UDP(0;) SCTP(0;) PROTOCOLS(0;)
+Host: 84.22.186.21 ()	Status: Up
+Host: 84.22.186.21 ()	Ports: 7/filtered/tcp//echo///, 9/filtered/tcp//discard///, 13/filtered/tcp//daytime///, 21/filtered/tcp//ftp///, 22/filtered/tcp//ssh///, 23/filtered/tcp//telnet///, 25/filtered/tcp//smtp///, 26/filtered/tcp//rsftp///, 37/filtered/tcp//time///, 53/filtered/tcp//domain///, 79/filtered/tcp//finger///, 80/open/tcp//http//Microsoft IIS httpd 5.0/, 81/filtered/tcp//hosts2-ns///, 88/filtered/tcp//kerberos-sec///, 106/filtered/tcp//pop3pw///	Seq Index: 17	IP ID Seq: Incremental
+# Nmap done at Wed Jan  1 13:32:34 2014 -- 1 IP address (1 host up) scanned in 18.63 seconds
