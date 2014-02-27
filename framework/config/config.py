@@ -272,7 +272,6 @@ class Config:
         #print "self.Target="+self.Target
         self.Set('TARGET_URL', TargetURL) # Set the target in the config
         # TODO: Use urlparse here
-        print "sfs----"+TargetURL
         ParsedURL = urlparse(TargetURL)
         URLScheme = Protocol = ParsedURL.scheme
         if ParsedURL.port == None: # Port is blank: Derive from scheme
