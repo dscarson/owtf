@@ -46,7 +46,7 @@ class AbstractPlugin(object):
         self.elapsed_time = None
         # A plugin contains several information like a group, a type, etc.
         self.info = None
-        if self._check_info(plugin_info):
+        if AbstractPlugin.is_valid_info(plugin_info):
             self.info = plugin_info
         else:  # The information are not valid, throw something
             # TODO: Create a custom error maybe?
@@ -64,7 +64,7 @@ class AbstractPlugin(object):
         raise NotImplementedError('A plugin MUST implement the run method.')
 
     @staticmethod
-    def _check_info(info):
+    def is_valid_info(info):
         """Check that the information of a plugin is correct."""
         # Check if a group is specified and if it is a valid one.
         if (not 'group' in info or
@@ -78,25 +78,26 @@ class AbstractPlugin(object):
         # Everything's fine about the information
         return True
 
-    @classmethod
-    def _init_output_dir(cls):
+    def _init_output_dir(self):
         """Returns the output path of the plugin."""
         # Retrieve the relative path of the plugin output.
         base_path = ''
-        if cls.info['group'] in [GROUP_WEB, GROUP_NET]:
-            base_path = cls.core.DB.Target.GetPath('PARTIAL_URL_OUTPUT_PATH')
-        elif cls.info['group'] == GROUP_AUX:
-            base_path = cls.core.Config.Get('AUX_OUTPUT_PATH')
+        if self.info['group'] in [GROUP_WEB, GROUP_NET]:
+            base_path = self.core.DB.Target.GetPath('PARTIAL_URL_OUTPUT_PATH')
+        elif self.info['group'] == GROUP_AUX:
+            base_path = self.core.Config.Get('AUX_OUTPUT_PATH')
         output_dir = os.path.join(
             base_path,
-            os.path.join(clean_filename(cls.info['title']), cls.info['type']))
+            os.path.join(
+                clean_filename(self.info['title']), self.info['type'])
+            )
         # FULL output path for plugins to use
-        cls.core.DB.Target.SetPath(
+        self.core.DB.Target.SetPath(
             'PLUGIN_OUTPUT_DIR',
             os.path.join(os.getcwd(), output_dir))
         # Force the creation of the directory if it does not exist yet.
-        cls.core.CreateMissingDirs(output_dir)
-        cls.output_dir = output_dir
+        self.core.CreateMissingDirs(output_dir)
+        self.output_dir = output_dir
 
 
 class AbstractRunCommandPlugin(AbstractPlugin):
