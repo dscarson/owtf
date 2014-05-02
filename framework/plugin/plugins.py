@@ -101,7 +101,7 @@ class AbstractPlugin(object):
 
 
 class AbstractRunCommandPlugin(AbstractPlugin):
-    """Abstract plugin that run a shell command."""
+    """Abstract plugin that runs a shell command."""
 
     def __init__(self, *args, **kwargs):
         """Self-explanatory."""
