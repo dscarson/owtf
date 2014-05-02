@@ -1,3 +1,7 @@
+import os
+from framework.lib.general import WipeBadCharsForFilename as clean_filename
+
+
 # TODO: Checks if already declared elsewhere
 # Defines the valid group for a plugin
 GROUP_WEB = 'web'
@@ -69,8 +73,15 @@ class AbstractPlugin(object):
 
     @classmethod
     def get_output_dir(cls):
-        """According to the plugin group and type, returns its path."""
-        raise NotImplementedError('get_output_dir must be implemented')
+        """Returns the output path of the plugin."""
+        base_path = ''
+        if cls.info['group'] in [GROUP_WEB, GROUP_NET]:
+            base_path = cls.core.DB.Target.GetPath('PARTIAL_URL_OUTPUT_PATH')
+        elif cls.info['group'] == GROUP_AUX:
+            base_path = cls.core.Config.Get('AUX_OUTPUT_PATH')
+        return os.path.join(
+            base_path,
+            os.path.join(clean_filename(cls.info['title']), cls.info['type']))
 
 
 class ActivePlugin(AbstractPlugin):
