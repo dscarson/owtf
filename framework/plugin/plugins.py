@@ -159,8 +159,18 @@ class ActivePlugin(AbstractRunCommandPlugin):
         self.prev_output = prev_output
         self._init_output_dir()
 
-    # TODO: This function looks messy! It should be modified
     def run(self):
+        """Callback function which is ran by OWTF.
+
+        Default ActivePlugin behaviour.
+        This function can be overrided by the user when declaring an
+        ActivePlugin. That way, the user can take into account specific usages.
+
+        """
+        return self.command_run()
+
+    # TODO: This function looks messy! It should be modified
+    def command_run(self):
         """Run the plugin command and format its output."""
         output_list = []
         for name, cmd in self.resources:
