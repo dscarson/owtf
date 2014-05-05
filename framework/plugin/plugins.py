@@ -32,6 +32,8 @@ VALID_TYPES = [
     PLUGIN_EXTERNAL]
 
 
+# TODO: Might be pertinent to inherit AbstractPlugin from dict because of the
+# `plugin_output`.
 class AbstractPlugin(object):
     """Abstract plugin declaring basics methods."""
 
@@ -106,22 +108,23 @@ class AbstractRunCommandPlugin(AbstractPlugin):
     def __init__(self, *args, **kwargs):
         """Self-explanatory."""
         AbstractPlugin.__init__(self, *args, **kwargs)
-        self.modified_command = None
+        self.cmd_modified = None
         self.raw_output = None
+        self.plugin_output = dict({'type': None, 'output': None})
 
-    def run_command(self, command):
+    def run_command(self, cmd):
         """Run the shell command of the plugin."""
         if not hasattr(self, 'output_dir'):
             self._init_output_dir()
         # Keep track of the elapsed time.
-        self.core.Timer.StartTimer('FormatCommandAndOutput')
-        self.modified_command = self.core.Shell.GetModifiedShellCommand(
-            command,
+        self.core.Timer.StartTimer('run_command')
+        self.cmd_modified = self.core.Shell.GetModifiedShellCommand(
+            cmd,
             self.output_dir)
         # Run the shell command.
         try:
             self.raw_output = self.core.Shell.shell_exec_monitor(
-                self.modified_command)
+                self.cmd_modified)
         except PluginAbortException as partial_output:
             self.raw_output = str(partial_output.parameter)
             self.plugin_abort = True
@@ -129,17 +132,91 @@ class AbstractRunCommandPlugin(AbstractPlugin):
             self.raw_output = str(partial_output)
             self.framework_abort = True
         # Save the elapsed time.
-        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr(
-            'FormatCommandAndOutput')
+        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr('run_command')
         log('Time=' + self.elapsed_time)
 
 
-class ActivePlugin(AbstractPlugin):
+class ActivePlugin(AbstractRunCommandPlugin):
     """Active plugin."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 core,
+                 plugin_info,
+                 resources,
+                 cmd_intro='Test command',
+                 output_intro='Output',
+                 prev_output=None,
+                 *args, **kwargs):
         """Self-explanatory."""
-        AbstractPlugin.__init__(self, *args, **kwargs)
+        AbstractRunCommandPlugin.__init__(
+            self,
+            core,
+            plugin_info,
+            resources,
+            *args, **kwargs)
+        self.cmd_intro = cmd_intro
+        self.output_intro = output_intro
+        self.prev_output = prev_output
+        self._init_output_dir()
+
+    # TODO: This function looks messy! It should be modified
+    def run(self):
+        """Run the plugin command and format its output."""
+        output_list = []
+        for name, cmd in self.resources:
+            self.run_command(cmd)
+            self.plugin_output['type'] = 'CommandDump'
+            self.plugin_output['output'] = {
+                'Name': None,  # TODO: Write GetCommandOutputFileNameAndExtension
+                'CommandIntro': self.cmd_intro,
+                'ModifiedCommand': self.cmd_modified,
+                'RelativeFilePath': self.core.PluginHandler.DumpOuputFile(
+                    name,
+                    self.raw_output,
+                    self.info,
+                    RelativePath=True),
+                'OutputIntro': self.output_intro,
+                'TimeStr': self.elapsed_time}
+            plugin_output = list(self.plugin_output)
+
+            # This command returns URLs for processing
+            if name == self.core.Config.FrameworkConfigGet('EXTRACT_URLS_RESERVED_RESOURCE_NAME'):
+                plugin_output = self.log_urls()
+
+            if self.plugin_abort:
+                raise PluginAbortException(self.prev_output + plugin_output)
+            if self.framework_abort:
+                raise FrameworkAbortException(self.prev_output + plugin_output)
+
+            output_list += plugin_output
+        return (output_list)
+
+    # TODO: Write the doc string.
+    def log_urls(self):
+        # Keep track of the elapsed time.
+        self.core.Timer.StartTimer('log_urls')
+        urls = self.raw_output.strip().split('\n')
+        self.core.DB.URL.ImportUrls(urls)
+        nb_found = 0
+        visit_urls = False
+        # TODO: Whether or not active testing will depend on the user profile
+        # ;). Have cool ideas for profile names
+        if True:
+            visit_urls = True
+            nb_found = sum([
+                transaction.Found
+                for transaction in self.core.Requester.GetTransactions(
+                    True, self.core.DB.URL.GetURLsToVisit())
+                ])
+        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr('log_urls')
+        log('Spider/URL scraper time=' + self.elapsed_time)
+        self.plugin_output['type'] = 'URLsFromStr'
+        self.plugin_output['output'] = {
+            'TimerStr': self.elapsed_time,
+            'VisitUrls': visit_urls,
+            'URLList': urls,
+            'NumFound': nb_found}
+        return (list(self.plugin_output))
 
 
 class PassivePlugin(AbstractPlugin):
