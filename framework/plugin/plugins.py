@@ -160,7 +160,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
         self._init_output_dir()
 
     def run(self):
-        """Callback function which is ran by OWTF.
+        """Callback function which is run by OWTF.
 
         Default ActivePlugin behaviour.
         This function can be overrided by the user when declaring an
