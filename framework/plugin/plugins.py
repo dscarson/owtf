@@ -121,7 +121,7 @@ class AbstractRunCommandPlugin(AbstractPlugin):
         # Run the shell command.
         try:
             self.raw_output = self.core.Shell.shell_exec_monitor(
-                modified_command)
+                self.modified_command)
         except PluginAbortException as partial_output:
             self.raw_output = str(partial_output.parameter)
             self.plugin_abort = True
