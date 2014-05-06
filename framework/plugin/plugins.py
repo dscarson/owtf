@@ -61,7 +61,12 @@ class AbstractPlugin(object):
         # will be run for instance.
         self.resources = resources or self.RESOURCES
         if not self.resources is None:
-            self.resources = self.core.DB.Resource.GetResources(self.resources)
+            if isinstance(self.resources, basestring):
+                self.resources = self.core.DB.Resource.GetResources(
+                    self.resources)
+            else:  # Assuming that resources is a list.
+                self.resources = self.core.DB.Resource.GetResourceList(
+                    self.resources)
         # The ouput of a plugin is saved into its attribute `output` and its
         # type is saved into `type`.
         self.output = None
