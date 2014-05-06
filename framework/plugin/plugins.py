@@ -59,7 +59,7 @@ class AbstractPlugin(object):
                 "the requirements.")
         # Plugin might have a resource which might contains the command that
         # will be run for instance.
-        self.resources = resources or RESOURCES
+        self.resources = resources or self.RESOURCES
         if not self.resources is None:
             self.resources = self.core.DB.Resource.GetResources(self.resources)
         # The ouput of a plugin is saved into its attribute `output` and its
