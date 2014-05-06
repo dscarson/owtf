@@ -60,6 +60,10 @@ class AbstractPlugin(object):
         self.resources = resources
         if not self.resources is None:
             self.resources = self.core.DB.Resource.GetResources(self.resources)
+        # The ouput of a plugin is saved into its attribute `output` and its
+        # type is saved into `type`.
+        self.output = None
+        self.type = None
 
     def run(self):
         """Callback function that actually runs the plugin."""
@@ -101,6 +105,15 @@ class AbstractPlugin(object):
         self.core.CreateMissingDirs(output_dir)
         self.output_dir = output_dir
 
+    def dump(self, type='type', output='output'):
+        """Return the result of a plugin.
+
+        Generate a dictionary from the attributes `type` and `output` and
+        returns a list of it.
+
+        """
+        return [dict({type: self.type, output: self.output})]
+
 
 class AbstractRunCommandPlugin(AbstractPlugin):
     """Abstract plugin that runs a shell command."""
@@ -110,7 +123,6 @@ class AbstractRunCommandPlugin(AbstractPlugin):
         AbstractPlugin.__init__(self, *args, **kwargs)
         self.cmd_modified = None
         self.raw_output = None
-        self.plugin_output = dict({'type': None, 'output': None})
 
     def run_command(self, cmd):
         """Run the shell command of the plugin."""
@@ -175,8 +187,8 @@ class ActivePlugin(AbstractRunCommandPlugin):
         output_list = []
         for name, cmd in self.resources:
             self.run_command(cmd)
-            self.plugin_output['type'] = 'CommandDump'
-            self.plugin_output['output'] = {
+            self.type = 'CommandDump'
+            self.output = {
                 'Name': None,  # TODO: Write GetCommandOutputFileNameAndExtension
                 'CommandIntro': self.cmd_intro,
                 'ModifiedCommand': self.cmd_modified,
@@ -187,7 +199,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
                     RelativePath=True),
                 'OutputIntro': self.output_intro,
                 'TimeStr': self.elapsed_time}
-            plugin_output = list(self.plugin_output)
+            plugin_output = self.dump()
 
             # This command returns URLs for processing
             if name == self.core.Config.FrameworkConfigGet('EXTRACT_URLS_RESERVED_RESOURCE_NAME'):
@@ -220,13 +232,13 @@ class ActivePlugin(AbstractRunCommandPlugin):
                 ])
         self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr('log_urls')
         log('Spider/URL scraper time=' + self.elapsed_time)
-        self.plugin_output['type'] = 'URLsFromStr'
-        self.plugin_output['output'] = {
+        self.type = 'URLsFromStr'
+        self.output = {
             'TimerStr': self.elapsed_time,
             'VisitUrls': visit_urls,
             'URLList': urls,
             'NumFound': nb_found}
-        return (list(self.plugin_output))
+        return (self.dump())
 
 
 class PassivePlugin(AbstractPlugin):
