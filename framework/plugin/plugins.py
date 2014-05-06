@@ -55,7 +55,7 @@ class AbstractPlugin(object):
         else:  # The information are not valid, throw something
             # TODO: Create a custom error maybe?
             raise ValueError(
-                "The information of the plugin didn't not fulfill "
+                "The information of the plugin did not fulfill "
                 "the requirements.")
         # Plugin might have a resource which might contains the command that
         # will be run for instance.
