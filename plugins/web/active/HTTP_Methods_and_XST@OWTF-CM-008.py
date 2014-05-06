@@ -1,4 +1,5 @@
-""" 
+"""
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2011, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,15 +18,16 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-ACTIVE Plugin for Testing for HTTP Methods and XST (OWASP-CM-008)
+ACTIVE Plugin for Testing for HTTP Methods and XST (OWASP-CM-008).
+
 """
 #
 #
@@ -43,15 +45,15 @@ ACTIVE Plugin for Testing for HTTP Methods and XST (OWASP-CM-008)
 DESCRIPTION = "Active probing for HTTP methods"
 
 def run(Core, PluginInfo):
-	#Core.Config.Show()
-	#Transaction = Core.Requester.TRACE(Core.Config.Get('HOST_NAME'), '/')
-	URL = Core.DB.Target.Get('TOP_URL')
-	# TODO: PUT not working right yet
-	#PUT_URL = URL+"/_"+Core.Random.GetStr(20)+".txt"
-	#print PUT_URL
-	#PUT_URL = URL+"/a.txt"
-	PUT_URL = URL
-	Content = Core.PluginHelper.TransactionTable( [ Core.Requester.GetTransaction(True, URL, 'TRACE'), Core.Requester.GetTransaction(True, URL, 'DEBUG'), Core.Requester.GetTransaction(True, PUT_URL, 'PUT', Core.Random.GetStr(15)) ] ) 
-	Content += Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('ActiveHTTPMethods'), PluginInfo, Content)
-	# Deprecated: Content += Core.PluginHelper.LogURLs(PluginInfo, Core.Config.GetResources('ActiveHTTPMethodsExtractLinks'))
-	return Content
+    #Core.Config.Show()
+    #Transaction = Core.Requester.TRACE(Core.Config.Get('HOST_NAME'), '/')
+    URL = Core.DB.Target.Get('TOP_URL')
+    # TODO: PUT not working right yet
+    #PUT_URL = URL+"/_"+Core.Random.GetStr(20)+".txt"
+    #print PUT_URL
+    #PUT_URL = URL+"/a.txt"
+    PUT_URL = URL
+    Content = Core.PluginHelper.TransactionTable( [ Core.Requester.GetTransaction(True, URL, 'TRACE'), Core.Requester.GetTransaction(True, URL, 'DEBUG'), Core.Requester.GetTransaction(True, PUT_URL, 'PUT', Core.Random.GetStr(15)) ] ) 
+    Content += Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('ActiveHTTPMethods'), PluginInfo, Content)
+    # Deprecated: Content += Core.PluginHelper.LogURLs(PluginInfo, Core.Config.GetResources('ActiveHTTPMethodsExtractLinks'))
+    return Content
