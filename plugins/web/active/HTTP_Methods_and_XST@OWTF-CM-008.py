@@ -27,7 +27,19 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 ACTIVE Plugin for Testing for HTTP Methods and XST (OWASP-CM-008)
 """
-
+#
+#
+#from framework.plugin.plugins import ActivePlugin
+#
+#
+#class HttpMethodsAndXstPlugin(ActivePlugin):
+#    """Active probing for HTTP methods."""
+#
+#    RESOURCES = 'ActiveHTTPMethods'
+#
+#    def run(self):
+#        """Override of the default run command of an ActivePlugin."""
+#        pass
 DESCRIPTION = "Active probing for HTTP methods"
 
 def run(Core, PluginInfo):
@@ -43,4 +55,3 @@ def run(Core, PluginInfo):
 	Content += Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('ActiveHTTPMethods'), PluginInfo, Content)
 	# Deprecated: Content += Core.PluginHelper.LogURLs(PluginInfo, Core.Config.GetResources('ActiveHTTPMethodsExtractLinks'))
 	return Content
-

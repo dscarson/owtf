@@ -30,8 +30,11 @@ This will perform a "low-hanging-fruit" pass on the web app for easy to find (to
 
 """
 
-DESCRIPTION = "Active Vulnerability Scanning without credentials via Arachni"
 
-def run(Core, PluginInfo):
-	#Core.Config.Show()
-	return Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('Arachni_Unauth'), PluginInfo, [])
+from framework.plugin.plugins import ActivePlugin
+
+
+class ArachniUnauthPlugin(ActivePlugin):
+    """Active probing for app discovery."""
+
+    RESOURCES = 'Arachni_Unauth'
