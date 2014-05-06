@@ -28,8 +28,11 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ACTIVE Plugin for Testing for Application Discovery (OWASP-IG-005)
 """
 
-DESCRIPTION = "Active probing for app discovery"
 
-def run(Core, PluginInfo):
-	#Core.Config.Show()
-	return Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('ActiveDiscovery'), PluginInfo, []) # No previous output
+from framework.plugin.plugins import ActivePlugin
+
+
+class AppDiscoveryPlugin(ActivePlugin):
+    """Active probing for app discovery."""
+
+    RESOURCES = 'ActiveDiscovery'

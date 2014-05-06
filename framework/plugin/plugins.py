@@ -37,6 +37,8 @@ VALID_TYPES = [
 class AbstractPlugin(object):
     """Abstract plugin declaring basics methods."""
 
+    RESOURCES = None
+
     def __init__(self, core, plugin_info, resources=None, *args, **kwargs):
         """Self-explanatory."""
         # A plugin has a reference to the Core object.
@@ -57,7 +59,7 @@ class AbstractPlugin(object):
                 "the requirements.")
         # Plugin might have a resource which might contains the command that
         # will be run for instance.
-        self.resources = resources
+        self.resources = resources or RESOURCES
         if not self.resources is None:
             self.resources = self.core.DB.Resource.GetResources(self.resources)
         # The ouput of a plugin is saved into its attribute `output` and its
@@ -154,7 +156,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
     def __init__(self,
                  core,
                  plugin_info,
-                 resources,
+                 resources=None,
                  cmd_intro='Test command',
                  output_intro='Output',
                  prev_output=None,
