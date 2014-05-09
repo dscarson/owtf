@@ -5,7 +5,10 @@ from framework.db import models
 from sqlalchemy import or_
 
 
-TEST_GROUPS = ['web', 'net', 'aux']
+WEB_GROUP = 'web'
+NET_GROUP = 'net'
+AUX_GROUP = 'aux'
+TEST_GROUPS = [WEB_GROUP, NET_GROUP, AUX_GROUP]
 
 
 class PluginDB(object):

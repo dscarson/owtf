@@ -2,17 +2,8 @@ import os
 from framework.lib.general import PluginAbortException, FrameworkAbortException
 from framework.lib.general import WipeBadCharsForFilename as clean_filename
 from framework.lib.general import log
-
-
-# TODO: Checks if already declared elsewhere
-# Defines the valid group for a plugin
-GROUP_WEB = 'web'
-GROUP_NET = 'net'
-GROUP_AUX = 'aux'
-VALID_GROUPS = [
-    GROUP_WEB,
-    GROUP_NET,
-    GROUP_AUX]
+from framework.db.plugin_manager import WEB_GROUP, NET_GROUP, AUX_GROUP, \
+                                        TEST_GROUPS
 
 
 # TODO: Checks if already declared elsewhere
@@ -81,7 +72,7 @@ class AbstractPlugin(object):
         """Check that the information of a plugin is correct."""
         # Check if a group is specified and if it is a valid one.
         if (not 'group' in info or
-                ('group' in info and not info['group'] in VALID_GROUPS)):
+                ('group' in info and not info['group'] in TEST_GROUPS)):
             return False
         # Check if a type is specified and if it is a valid one.
         if (not 'type' in info or
@@ -95,9 +86,9 @@ class AbstractPlugin(object):
         """Returns the output path of the plugin."""
         # Retrieve the relative path of the plugin output.
         base_path = ''
-        if self.info['group'] in [GROUP_WEB, GROUP_NET]:
+        if self.info['group'] in [WEB_GROUP, NET_GROUP]:
             base_path = self.core.DB.Target.GetPath('PARTIAL_URL_OUTPUT_PATH')
-        elif self.info['group'] == GROUP_AUX:
+        elif self.info['group'] == AUX_GROUP:
             base_path = self.core.Config.Get('AUX_OUTPUT_PATH')
         output_dir = os.path.join(
             base_path,
