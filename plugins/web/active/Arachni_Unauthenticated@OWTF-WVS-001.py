@@ -37,6 +37,6 @@ from framework.plugin.plugins import ActivePlugin
 
 
 class ArachniUnauthPlugin(ActivePlugin):
-    """Active probing for app discovery."""
+    """Active Vulnerability Scanning without credentials via Arachni."""
 
     RESOURCES = 'Arachni_Unauth'
