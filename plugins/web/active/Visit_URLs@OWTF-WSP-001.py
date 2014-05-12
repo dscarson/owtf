@@ -35,14 +35,21 @@ vulnerability probing.
 
 """
 import logging
+from framework.plugin.plugins import ActivePlugin
 
-DESCRIPTION = "Visit URLs found by other tools, some could be sensitive: need permission"
 
-def run(Core, PluginInfo):
-    #Core.Config.Show()
-    urls = Core.DB.URL.GetURLsToVisit()
-    for url in urls: # This will return only unvisited urls
-        Core.Requester.GetTransaction(True, url) # Use cache if possible
-    Content = str(len(urls))+" URLs were visited"
-    Core.log(Content)
-    return([{"type":"Html", "output":{"HtmlString":Content}}])
+class VisitURLsPlugin(ActivePlugin):
+    """Visit URLs found by other tools.
+
+    Some could be sensitive: need permission.
+
+    """
+
+    def run(self):
+        urls = self.core.DB.URL.GetURLsToVisit()
+        for url in urls:
+            self.core.Requester.GetTransaction(True, url)
+        self.type = 'Html'
+        self.output = str(len(urls) + ' URLs were visited.'
+        self.core.log(self.output)
+        return (self.dump())

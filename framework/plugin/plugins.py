@@ -305,6 +305,16 @@ class PassivePlugin(AbstractPlugin):
     def process_robots(self):
         pass
 
+    def suggest_command_box(self, command_category_list, header=''):
+        """Display a command box to suggest some options to the user."""
+        self._init_output_dir()
+        self.type = 'SuggestedCommandBox'
+        self.output = {
+            'PluginOutputDir': self.output_dir,
+            'CommandCategoryList': command_category_list,
+            'Header': header}
+        return (self.dump())
+
     def run(self):
         """Run the passive plugin."""
         self.output = {'ResourceList': None}
@@ -362,10 +372,6 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
             'Method': method,
             'Data': data}
         return (self.dump())
-
-    def run(self):
-        """Callback function that actually runs the plugin."""
-        raise NotImplementedError('A plugin MUST implement the run method.')
 
 
 class GrepPlugin(AbstractPlugin):

@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2011, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,32 +18,40 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-Robots.txt semi-passive plugin, parses robots.txt file to generate on-screen links and save them for later spidering and analysis
+Robots.txt semi-passive plugin, parses robots.txt file to generate on-screen
+links and save them for later spidering and analysis.
+
 """
-import re, cgi,logging
 
-DESCRIPTION = "Normal request for robots.txt analysis"
 
-def run(Core, PluginInfo):
+from framework.plugin.plugins import SemiPassivePlugin
 
-    TopURL = Core.DB.Target.Get('TOP_URL')
-    URL = TopURL+"/robots.txt"
-    # TODO: Check the below line's necessity
-    #TestResult = Core.Reporter.Render.DrawButtonLink(URL, URL)
-    TestResult = []
-    HTTP_Transaction = Core.Requester.GetTransaction(True, URL) # Use transaction cache if possible for speed
-    if HTTP_Transaction.Found:
-        TestResult += Core.PluginHelper.ProcessRobots(PluginInfo, HTTP_Transaction.GetRawResponseBody(), TopURL, '')
-    else: # robots.txt NOT found
-	Core.log("robots.txt was NOT found")
-    TestResult += Core.PluginHelper.TransactionTable([ HTTP_Transaction ])
-    return TestResult
 
+class SpidersRobotsAndCrawlersPlugin(SemiPassivePlugin):
+    """Normal request for robots.txt analysis."""
+
+    def run(self):
+        top_url = self.core.DB.Target.Get('TOP_URL')
+        url = top_url + '/robots.txt'
+        transaction_list = []
+        # Use transaction cache if possible (for speed)
+        http_transaction = self.core.Requester.GetTransaction(True, url)
+        if http_transaction.Found:
+            transaction_list += self.process_robots(
+                http_transaction.GetRawResponseBody(),
+                top_url,
+                '')
+        else:
+            self.core.log('robots.txt was NOT found')
+
+        return (
+            transaction_list +
+            self.get_transaction_table([http_transaction]))
