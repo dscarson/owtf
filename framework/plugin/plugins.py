@@ -363,10 +363,6 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
             'Data': data}
         return (self.dump())
 
-    def run(self):
-        """Callback function that actually runs the plugin."""
-        raise NotImplementedError('A plugin MUST implement the run method.')
-
 
 class GrepPlugin(AbstractPlugin):
     """Grep Passive plugin."""
