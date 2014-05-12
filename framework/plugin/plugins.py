@@ -167,6 +167,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
                  core,
                  plugin_info,
                  resources=None,
+                 lazy_resources=False,
                  cmd_intro='Test command',
                  output_intro='Output',
                  prev_output=None,
@@ -177,6 +178,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
             core,
             plugin_info,
             resources,
+            lazy_resources,
             *args, **kwargs)
         self.cmd_intro = cmd_intro
         self.output_intro = output_intro
