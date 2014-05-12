@@ -127,7 +127,7 @@ class AbstractPlugin(object):
         return [dict({type: self.type, output: self.output})]
 
 
-class AbstractRunCommandPlugin(AbstractPlugin):
+class AbstractRunShellCommandPlugin(AbstractPlugin):
     """Abstract plugin that runs a shell command."""
 
     def __init__(self, *args, **kwargs):
@@ -136,12 +136,12 @@ class AbstractRunCommandPlugin(AbstractPlugin):
         self.cmd_modified = None
         self.raw_output = None
 
-    def run_command(self, cmd):
+    def run_shell_command(self, cmd):
         """Run the shell command of the plugin."""
         if not hasattr(self, 'output_dir'):
             self._init_output_dir()
         # Keep track of the elapsed time.
-        self.core.Timer.StartTimer('run_command')
+        self.core.Timer.StartTimer('run_shell_command')
         self.cmd_modified = self.core.Shell.GetModifiedShellCommand(
             cmd,
             self.output_dir)
@@ -156,11 +156,12 @@ class AbstractRunCommandPlugin(AbstractPlugin):
             self.raw_output = str(partial_output)
             self.framework_abort = True
         # Save the elapsed time.
-        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr('run_command')
+        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr(
+            'run_shell_command')
         log('Time=' + self.elapsed_time)
 
 
-class ActivePlugin(AbstractRunCommandPlugin):
+class ActivePlugin(AbstractRunShellCommandPlugin):
     """Active plugin."""
 
     def __init__(self,
@@ -173,7 +174,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
                  prev_output=None,
                  *args, **kwargs):
         """Self-explanatory."""
-        AbstractRunCommandPlugin.__init__(
+        AbstractRunShellCommandPlugin.__init__(
             self,
             core,
             plugin_info,
@@ -200,7 +201,7 @@ class ActivePlugin(AbstractRunCommandPlugin):
         """Run the plugin command and format its output."""
         output_list = []
         for name, cmd in self.resources:
-            self.run_command(cmd)
+            self.run_shell_command(cmd)
             self.type = 'CommandDump'
             self.output = {
                 'Name': None,  # TODO: Write GetCommandOutputFileNameAndExtension
@@ -300,6 +301,10 @@ class PassivePlugin(AbstractPlugin):
                     self.resources = self.core.DB.Resource.GetResources(
                         resources_name)
 
+    # TODO: Implement process_robots
+    def process_robots(self):
+        pass
+
     def run(self):
         """Run the passive plugin."""
         self.output = {'ResourceList': None}
@@ -310,12 +315,57 @@ class PassivePlugin(AbstractPlugin):
         return (self.dump())
 
 
-class SemiPassivePlugin(AbstractPlugin):
+# TODO: Multiple inheritance is most of the time due to bad design. Should have
+# a look on how to change the plugin class hierarchy in order to avoid multiple
+# inheritance.
+class SemiPassivePlugin(ActivePlugin, PassivePlugin):
     """Semi Passive plugin."""
 
     def __init__(self, *args, **kwargs):
         """Self-explanatory."""
         AbstractPlugin.__init__(self, *args, **kwargs)
+
+    # TODO: Implement research_fingerprint_in_log
+    def research_fingerprint_in_log(self):
+        pass
+
+    def get_transaction_table(self, transaction_list):
+        """Add the transaction IDs to the output.
+
+        The reporter will then be able to fetch the transaction from the DB.
+
+        """
+        transaction_ids = [
+            transaction.GetId() for transaction in transaction_list]
+        self.type = 'TransactionTableFromIDs'
+        self.output = {'TransactionIDs': transaction_ids}
+        return (self.dump())
+
+    def get_transaction_table_for_url_list(self,
+                                           url_types=None
+                                           use_cache=True,
+                                           method='',
+                                           data=''):
+        """Ensure that the URLs from the list are visited.
+
+        Does not save the transaction IDs into the output.
+
+        """
+        if url_type is None:
+            url_type = ['TARGET_URL', 'TOP_URL']
+        url_list = self.core.DB.Target.GetAsList(url_types)
+        self.core.Requester.GetTransactions(use_cache, url_list, method, data)
+        self.type = 'TransactionTableForURLList'
+        self.output = {
+            'UseCache': use_cache,
+            'URLList': url_list,
+            'Method': method,
+            'Data': data}
+        return (self.dump())
+
+    def run(self):
+        """Callback function that actually runs the plugin."""
+        raise NotImplementedError('A plugin MUST implement the run method.')
 
 
 class GrepPlugin(AbstractPlugin):
