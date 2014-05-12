@@ -30,7 +30,12 @@ class AbstractPlugin(object):
 
     RESOURCES = None
 
-    def __init__(self, core, plugin_info, resources=None, *args, **kwargs):
+    def __init__(self,
+                 core,
+                 plugin_info,
+                 resources=None,
+                 lazy_resources=False,
+                 *args, **kwargs):
         """Self-explanatory."""
         # A plugin has a reference to the Core object.
         self.core = core
@@ -50,14 +55,11 @@ class AbstractPlugin(object):
                 "the requirements.")
         # Plugin might have a resource which might contains the command that
         # will be run for instance.
-        self.resources = resources or self.RESOURCES
-        if not self.resources is None:
-            if isinstance(self.resources, basestring):
-                self.resources = self.core.DB.Resource.GetResources(
-                    self.resources)
-            else:  # Assuming that resources is a list.
-                self.resources = self.core.DB.Resource.GetResourceList(
-                    self.resources)
+        self._lazy_resources = lazy_resources
+        self.resources = None
+        self.resources_name = resources or self.RESOURCES
+        if not self.resources_name is None and not self._lazy_resources:
+            self._get_resources(self.resources_name)
         # The ouput of a plugin is saved into its attribute `output` and its
         # type is saved into `type`.
         self.output = None
@@ -66,6 +68,18 @@ class AbstractPlugin(object):
     def run(self):
         """Callback function that actually runs the plugin."""
         raise NotImplementedError('A plugin MUST implement the run method.')
+
+    def _get_resources(self, resources_name):
+        """Retrieve the resources of the plugin."""
+        # If the plugin was configured as lazy, it is now time to load the
+        # resources.
+        if self.resources is None:
+            if isinstance(resources_name, basestring):
+                self.resources = self.core.DB.Resource.GetResources(
+                    resources_name)
+            else:  # Assuming that resources is a list.
+                self.resources = self.core.DB.Resource.GetResourceList(
+                    resources_name)
 
     @staticmethod
     def is_valid_info(info):
@@ -240,11 +254,58 @@ class ActivePlugin(AbstractRunCommandPlugin):
 
 
 class PassivePlugin(AbstractPlugin):
-    """Passive plugin."""
+    """Passive plugin using link lists."""
 
-    def __init__(self, *args, **kwargs):
+    NAME = None
+
+    def __init__(self,
+                 core,
+                 plugin_info,
+                 resources=None,
+                 lazy_resources=True,
+                 name=None
+                 *args, **kwargs):
         """Self-explanatory."""
-        AbstractPlugin.__init__(self, *args, **kwargs)
+        AbstractPlugin.__init__(
+            self,
+            core,
+            plugin_info,
+            resources,
+            lazy_resources
+            *args, **kwargs)
+        self.name = name or self.NAME
+
+    def _get_resources(self, resources_name):
+        """Retrieve the resources of a passive plugin.
+
+        A passive plugin can be ResourceLinkList (one resource only) or
+        TabbedResourceLinkList (several resources).
+
+        """
+        if self.resources is None:
+            if self.name is None:
+                if isinstance(resources_name, dict)):
+                    self.type = 'TabbedResourceLinkList'
+                    resources = []
+                    for link_name, resource_name in resources_name.items():
+                        resources.append([
+                            link_name,
+                            self.core.DB.Resource.GetResources(resource_name)])
+                    self.resources = resources
+            else:
+                if isinstance(resource_name, basestring):
+                    self.type = 'ResourceLinkList'
+                    self.resources = self.core.DB.Resource.GetResources(
+                        resources_name)
+
+    def run(self):
+        """Run the passive plugin."""
+        self.output = {'ResourceList': None}
+        if not self.name is None:
+            self.output['ResourceListName'] = name
+        self._get_resources(self.resources_name)
+        self.output['ResourceList'] = self.resources
+        return (self.dump())
 
 
 class SemiPassivePlugin(AbstractPlugin):
