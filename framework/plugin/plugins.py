@@ -127,14 +127,32 @@ class AbstractPlugin(object):
         return [dict({type: self.type, output: self.output})]
 
 
-class AbstractRunShellCommandPlugin(AbstractPlugin):
-    """Abstract plugin that runs a shell command."""
+class ActivePlugin(AbstractPlugin):
+    """Active plugin."""
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 core,
+                 plugin_info,
+                 resources=None,
+                 lazy_resources=False,
+                 cmd_intro='Test command',
+                 output_intro='Output',
+                 prev_output=None,
+                 *args, **kwargs):
         """Self-explanatory."""
-        AbstractPlugin.__init__(self, *args, **kwargs)
+        AbstractPlugin.__init__(
+            self,
+            core,
+            plugin_info,
+            resources,
+            lazy_resources,
+            *args, **kwargs)
         self.cmd_modified = None
         self.raw_output = None
+        self.cmd_intro = cmd_intro
+        self.output_intro = output_intro
+        self.prev_output = prev_output
+        self._init_output_dir()
 
     def run_shell_command(self, cmd):
         """Run the shell command of the plugin."""
@@ -159,32 +177,6 @@ class AbstractRunShellCommandPlugin(AbstractPlugin):
         self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr(
             'run_shell_command')
         log('Time=' + self.elapsed_time)
-
-
-class ActivePlugin(AbstractRunShellCommandPlugin):
-    """Active plugin."""
-
-    def __init__(self,
-                 core,
-                 plugin_info,
-                 resources=None,
-                 lazy_resources=False,
-                 cmd_intro='Test command',
-                 output_intro='Output',
-                 prev_output=None,
-                 *args, **kwargs):
-        """Self-explanatory."""
-        AbstractRunShellCommandPlugin.__init__(
-            self,
-            core,
-            plugin_info,
-            resources,
-            lazy_resources,
-            *args, **kwargs)
-        self.cmd_intro = cmd_intro
-        self.output_intro = output_intro
-        self.prev_output = prev_output
-        self._init_output_dir()
 
     def run(self):
         """Callback function which is run by OWTF.
