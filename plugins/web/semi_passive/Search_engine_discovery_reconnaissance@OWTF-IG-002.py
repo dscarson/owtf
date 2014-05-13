@@ -38,5 +38,4 @@ class SearchengineDiscoveryReconnaissancePlugin(SemiPassivePlugin):
     """Metadata analysis."""
 
     RESOURCES = 'SemiPassiveSearchEngineDiscoveryCmd'
-    # TODO: Implements an ATTR system
-    #ATTR = {'INTERNET_RESOURCES': True,}
+    ATTR = {'INTERNET_RESOURCES': True}

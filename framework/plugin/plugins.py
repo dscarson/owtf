@@ -258,7 +258,7 @@ class PassivePlugin(AbstractPlugin):
                  plugin_info,
                  resources=None,
                  lazy_resources=True,
-                 name=None
+                 name=None,
                  *args, **kwargs):
         """Self-explanatory."""
         AbstractPlugin.__init__(
@@ -279,7 +279,7 @@ class PassivePlugin(AbstractPlugin):
         """
         if self.resources is None:
             if self.name is None:
-                if isinstance(resources_name, dict)):
+                if isinstance(resources_name, dict):
                     self.type = 'TabbedResourceLinkList'
                     resources = []
                     for link_name, resource_name in resources_name.items():
@@ -344,7 +344,7 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
         return (self.dump())
 
     def get_transaction_table_for_url_list(self,
-                                           url_types=None
+                                           url_types=None,
                                            use_cache=True,
                                            method='',
                                            data=''):
