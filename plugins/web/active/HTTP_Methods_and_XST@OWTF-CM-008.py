@@ -34,7 +34,7 @@ ACTIVE Plugin for Testing for HTTP Methods and XST (OWASP-CM-008).
 from framework.plugin.plugins import SemiPassivePlugin
 
 
-class HttpMethodsAndXstPlugin(ActivePlugin):
+class HttpMethodsAndXstPlugin(SemiPassivePlugin):
     """Active probing for HTTP methods."""
 
     RESOURCES = 'ActiveHTTPMethods'
@@ -55,6 +55,6 @@ class HttpMethodsAndXstPlugin(ActivePlugin):
                 put_url,
                 'PUT',
                 self.core.Random.GetStr(15))
-            ]
+            ])
         output += self.command_run()
         return (output)

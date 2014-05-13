@@ -50,6 +50,6 @@ class VisitURLsPlugin(ActivePlugin):
         for url in urls:
             self.core.Requester.GetTransaction(True, url)
         self.type = 'Html'
-        self.output = str(len(urls) + ' URLs were visited.'
+        self.output = str(len(urls)) + ' URLs were visited.'
         self.core.log(self.output)
         return (self.dump())
