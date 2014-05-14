@@ -311,7 +311,7 @@ class PassivePlugin(AbstractPlugin):
         """Run the passive plugin."""
         self.output = {'ResourceList': None}
         if not self.name is None:
-            self.output['ResourceListName'] = name
+            self.output['ResourceListName'] = self.name
         self._get_resources(self.resources_name)
         self.output['ResourceList'] = self.resources
         return (self.dump())
@@ -353,8 +353,8 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
         Does not save the transaction IDs into the output.
 
         """
-        if url_type is None:
-            url_type = ['TARGET_URL', 'TOP_URL']
+        if url_types is None:
+            url_types = ['TARGET_URL', 'TOP_URL']
         url_list = self.core.DB.Target.GetAsList(url_types)
         self.core.Requester.GetTransactions(use_cache, url_list, method, data)
         self.type = 'TransactionTableForURLList'
