@@ -37,7 +37,7 @@ Transaction Log.
 from framework.plugin.plugins import ExternalPlugin
 
 
-class InfraConfigurationManagement(ExternalPlugin):
+class InfraConfigManagementPlugin(ExternalPlugin):
     """Plugin to assist manual testing."""
 
     def run(self):

@@ -35,7 +35,7 @@ https://www.owasp.org/index.php/Testing_for_Old,_Backup_and_Unreferenced_Files_(
 from framework.plugin.plugins import ActivePlugin
 
 
-class DirBusterPlugin(ActivePlugin):
+class OldBackupAndUnrefFilesPlugin(ActivePlugin):
     """Active probing for juicy files (DirBuster)."""
 
     def __init__(self, core, plugin_info, *args, **kwargs):

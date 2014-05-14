@@ -34,7 +34,7 @@ ACTIVE Plugin for Testing for SSL-TLS (OWASP-CM-001).
 from framework.plugin.plugins import ActivePlugin
 
 
-class ActiveSSLPlugin(ActivePlugin):
+class TestingSSLTLSPlugin(ActivePlugin):
     """Active probing for SSL configuration."""
 
     RESOURCES = 'ActiveSSLCmds'

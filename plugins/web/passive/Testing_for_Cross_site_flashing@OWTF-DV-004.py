@@ -34,7 +34,7 @@ PASSIVE Plugin for Testing for Cross site flashing (OWASP-DV-004).
 from framework.plugin.plugins import PassivePlugin
 
 
-class TestingForCrossSiteFlashingPlugin(PassivePlugin):
+class CrossSiteFlashingPlugin(PassivePlugin):
     """Google Hacking for Cross Site Flashing."""
 
     NAME = 'Online Resources'

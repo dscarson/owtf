@@ -36,7 +36,7 @@ This will perform a "low-hanging-fruit" pass on the web app for easy to find
 from framework.plugin.plugins import ActivePlugin
 
 
-class W3afCredentialsPlugin(ActivePlugin):
+class W3AFUnauthPlugin(ActivePlugin):
     """Active Vulnerability Scanning without credentials via w3af."""
 
     RESOURCES = 'W3AF_Unauth'
