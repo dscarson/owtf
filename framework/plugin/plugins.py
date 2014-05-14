@@ -1,4 +1,5 @@
 import os
+import re
 from framework.lib.general import PluginAbortException, FrameworkAbortException
 from framework.lib.general import WipeBadCharsForFilename as clean_filename
 from framework.lib.general import log
@@ -64,6 +65,15 @@ class AbstractPlugin(object):
         # type is saved into `type`.
         self.output = None
         self.type = None
+
+    # TODO: Write the docstring.
+    def get_filename_and_extension(self, input_name):
+        output_name = input_name
+        output_extension = 'txt'
+        if input_name.split('.')[-1] in ['html']:
+            output_name = input_name[:-5]
+            output_extension = 'html'
+        return [output_name, output_extension]
 
     def run(self):
         """Callback function that actually runs the plugin."""
@@ -196,7 +206,7 @@ class ActivePlugin(AbstractPlugin):
             self.run_shell_command(cmd)
             self.type = 'CommandDump'
             self.output = {
-                'Name': None,  # TODO: Write GetCommandOutputFileNameAndExtension
+                'Name': self.get_filename_and_extension(name)[0],
                 'CommandIntro': self.cmd_intro,
                 'ModifiedCommand': self.cmd_modified,
                 'RelativeFilePath': self.core.PluginHandler.DumpOuputFile(
@@ -292,10 +302,6 @@ class PassivePlugin(AbstractPlugin):
                     self.type = 'ResourceLinkList'
                     self.resources = self.core.DB.Resource.GetResources(
                         resources_name)
-
-    # TODO: Implement process_robots
-    def process_robots(self):
-        pass
 
     def suggest_command_box(self, command_category_list, header=''):
         """Display a command box to suggest some options to the user."""
