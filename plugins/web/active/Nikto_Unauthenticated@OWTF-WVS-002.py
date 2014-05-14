@@ -32,10 +32,11 @@ This will perform a "low-hanging-fruit" pass on the web app for easy to find
 
 """
 
-DESCRIPTION = "Active Vulnerability Scanning without credentials via nikto"
 
-def run(Core, PluginInfo):
-    #Core.Config.Show()
-    NiktoOutput = Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('Nikto_Unauth'), PluginInfo, [])
-    Content = Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('Nikto_Verify_Unauth'), PluginInfo, NiktoOutput)
-    return Content+NiktoOutput # Show Nikto Verify FIRST (more useful, with links to findings, etc)
+from framework.plugin.plugins import ActivePlugin
+
+
+class ApplicationDiscoveryPlugin(ActivePlugin):
+    """Active Vulnerability Scanning without credentials via nikto."""
+
+    RESOURCES = ['Nikto_Unauth', 'Nikto_Verify_unauth']
