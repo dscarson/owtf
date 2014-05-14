@@ -235,11 +235,21 @@ class PluginHandler:
                 (Path, Name) = os.path.split(PluginPath)
                 #(Name, Ext) = os.path.splitext(Name)
                 #self.Core.DB.Debug.Add("Running Plugin -> Plugin="+str(Plugin)+", PluginDir="+str(PluginDir))
-                PluginOutput = self.GetModule("", Name, Path+"/").run(self.Core, Plugin)
+                # Load the plugin
+                plugin_module = self.GetModule(
+                    '',
+                    Name,
+                    Path + '/')
+                # Create an instance of the plugin class
+                plugin_instance = plugin_module.__dict__[
+                    Plugin['attr']['classname']](
+                        self.Core, Plugin)
+                # Run the plugin
+                plugin_output = plugin_instance.run()
                 #if save_output:
                     #print(PluginOutput)
                     #self.SavePluginInfo(PluginOutput, Plugin) # Timer retrieved here
-                return PluginOutput
+                return plugin_output
 
         def ProcessPlugin(self, PluginDir, Plugin, Status={}):
                 self.Core.Timer.StartTimer('Plugin') # Time how long it takes the plugin to execute

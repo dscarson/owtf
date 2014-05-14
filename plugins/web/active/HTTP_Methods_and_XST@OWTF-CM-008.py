@@ -29,31 +29,32 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ACTIVE Plugin for Testing for HTTP Methods and XST (OWASP-CM-008).
 
 """
-#
-#
-#from framework.plugin.plugins import ActivePlugin
-#
-#
-#class HttpMethodsAndXstPlugin(ActivePlugin):
-#    """Active probing for HTTP methods."""
-#
-#    RESOURCES = 'ActiveHTTPMethods'
-#
-#    def run(self):
-#        """Override of the default run command of an ActivePlugin."""
-#        pass
-DESCRIPTION = "Active probing for HTTP methods"
 
-def run(Core, PluginInfo):
-    #Core.Config.Show()
-    #Transaction = Core.Requester.TRACE(Core.Config.Get('HOST_NAME'), '/')
-    URL = Core.DB.Target.Get('TOP_URL')
-    # TODO: PUT not working right yet
-    #PUT_URL = URL+"/_"+Core.Random.GetStr(20)+".txt"
-    #print PUT_URL
-    #PUT_URL = URL+"/a.txt"
-    PUT_URL = URL
-    Content = Core.PluginHelper.TransactionTable( [ Core.Requester.GetTransaction(True, URL, 'TRACE'), Core.Requester.GetTransaction(True, URL, 'DEBUG'), Core.Requester.GetTransaction(True, PUT_URL, 'PUT', Core.Random.GetStr(15)) ] ) 
-    Content += Core.PluginHelper.CommandDump('Test Command', 'Output', Core.DB.Resource.GetResources('ActiveHTTPMethods'), PluginInfo, Content)
-    # Deprecated: Content += Core.PluginHelper.LogURLs(PluginInfo, Core.Config.GetResources('ActiveHTTPMethodsExtractLinks'))
-    return Content
+
+from framework.plugin.plugins import SemiPassivePlugin
+
+
+class HTTPMethodsAndXSTPlugin(SemiPassivePlugin):
+    """Active probing for HTTP methods."""
+
+    RESOURCES = 'ActiveHTTPMethods'
+
+    def run(self):
+        """Override of the default run command of an ActivePlugin."""
+        url = self.core.Target.Get('TOP_URL')
+        # TODO: PUT not working right yet
+        #PUT_URL = URL+"/_"+Core.Random.GetStr(20)+".txt"
+        #print PUT_URL
+        #PUT_URL = URL+"/a.txt"
+        put_url = url
+        output = self.get_transaction_table([
+            self.core.Requester.GetTransaction(True, url, 'TRACE'),
+            self.core.Requester.GetTransaction(True, url, 'DEBUG'),
+            self.core.Requester.GetTransaction(
+                True,
+                put_url,
+                'PUT',
+                self.core.Random.GetStr(15))
+            ])
+        output += self.command_run()
+        return (output)

@@ -35,7 +35,7 @@ https://www.owasp.org/index.php/Testing_for_Web_Application_Fingerprint_%28OWASP
 from framework.plugin.plugins import ActivePlugin
 
 
-class ActiveFingerPlugin(ActivePlugin):
+class WebApplicationFingerprintPlugin(ActivePlugin):
     """Active probing for fingerprint analysis."""
 
     RESOURCES = 'ActiveFingerPlugin'

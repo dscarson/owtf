@@ -34,7 +34,7 @@ Plugin for probing smtp.
 from framework.plugin.plugins import ActivePlugin
 
 
-class SMPTProbingPlugin(ActivePlugin):
+class SMTPProbingPlugin(ActivePlugin):
     """SMTP Probing."""
 
     RESOURCES = 'SmtpProbeMethods'

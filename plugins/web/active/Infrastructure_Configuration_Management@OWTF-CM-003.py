@@ -34,7 +34,7 @@ ACTIVE Plugin for Testing for Web Application Fingerprint (OWASP-IG-004).
 from framework.plugin.plugins import ActivePlugin
 
 
-class InfConfigManagementPlugin(ActivePlugin):
+class InfraConfigManagementPlugin(ActivePlugin):
     """Active probing for fingerprint."""
 
     RESOURCES = 'ActiveInfrastructureConfigurationManagement'

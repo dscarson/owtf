@@ -36,7 +36,7 @@ This will perform a "low-hanging-fruit" pass on the web app for easy to find
 from framework.plugin.plugins import ActivePlugin
 
 
-class WapitiPlugin(ActivePlugin):
+class WapitiUnauthPlugin(ActivePlugin):
     """Active Vulnerability Scanning without credentials via Wapiti."""
 
     RESOURCES = 'Wapiti_Unauth'

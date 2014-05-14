@@ -34,9 +34,8 @@ SEMI-PASSIVE Plugin for Search engine discovery/reconnaissance (OWASP-IG-002).
 from framework.plugin.plugins import SemiPassivePlugin
 
 
-class SearchengineDiscoveryReconnaissancePlugin(SemiPassivePlugin):
+class SearchEngineDiscoveryReconnaissancePlugin(SemiPassivePlugin):
     """Metadata analysis."""
 
     RESOURCES = 'SemiPassiveSearchEngineDiscoveryCmd'
-    # TODO: Implements an ATTR system
-    #ATTR = {'INTERNET_RESOURCES': True,}
+    ATTR = {'INTERNET_RESOURCES': True}

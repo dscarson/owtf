@@ -37,7 +37,7 @@ This will perform a "low-hanging-fruit" pass on the web app for easy to find
 from framework.plugin.plugins import ActivePlugin
 
 
-class WebsecurifyPlugin(ActivePlugin):
+class WebsecurifyUnauthPlugin(ActivePlugin):
     """Active Vulnerability Scanning without credentials via Websecurify."""
 
     RESOURCES = 'WebSecurify_Unauth'

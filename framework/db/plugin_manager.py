@@ -3,6 +3,7 @@ import imp
 import json
 from framework.db import models
 from sqlalchemy import or_
+from framework.lib.general import cprint
 
 
 WEB_GROUP = 'web'
@@ -80,7 +81,7 @@ class PluginDB(object):
             + 'type': the type of the plugin (ex: active, passive, ...)
             + 'descrip': the description of the plugin
             + 'file': the filename of the plugin
-            + 'internet_res': does the plugin use internet resources?
+            + 'attr': attributes of the plugin
 
         """
         # TODO: When the -t, -e or -o is given to OWTF command line, only load
@@ -92,7 +93,7 @@ class PluginDB(object):
         for root, _, files in os.walk(self.Core.Config.FrameworkConfigGet('PLUGINS_DIR')):
             plugins.extend([
                 os.path.join(root, filename) for filename in files
-                if filename.endswith('py')])
+                if filename.endswith('py') and '__init__' not in filename])
         plugins = sorted(plugins)
         # Retrieve the information of the plugin.
         for plugin_path in plugins:
@@ -118,13 +119,40 @@ class PluginDB(object):
                 filename,
                 pathname,
                 desc)
-            # Try te retrieve the `attr` dictionary from the module and convert
-            # it to json in order to save it into the database.
-            attr = None
+            # Retrieve the plugin class
+            from framework.plugin.plugins import AbstractPlugin
+            class_name = []
+            plugin_instance = []
+            for key, obj in plugin_module.__dict__.items():
+                try:
+                    if (issubclass(obj, AbstractPlugin) and
+                            obj.__module__ in pathname):
+                        class_name.append(key)
+                        plugin_instance.append(obj)
+                except TypeError:  # The current dict value is not an object.
+                    pass
+            # If no class has been found, skip the plugin. It must be
+            # malformed.
+            if not plugin_instance:
+                cprint(
+                    'WARNING: the plugin ' + pathname +
+                    ' DID NOT define a class => SKIPPED.')
+                continue
+            # Keep in mind that a plugin SHOULD NOT have more than one class.
+            # The default behaviour is to save the last found.
+            class_name = class_name[-1]
+            plugin_instance = plugin_instance[-1]
+            attr = {'classname': class_name}
             try:
-                attr = json.dumps(plugin_module.ATTR)
+                attr.update(plugin_instance.ATTR)
             except AttributeError:  # The plugin didn't define an attr dict.
                 pass
+            finally:
+                attr = json.dumps(attr)
+            try:
+                description = plugin_instance.__doc__
+            except AttributeError:
+                description = ''
             # Save the plugin into the database.
             session.merge(
                 models.Plugin(
@@ -135,7 +163,7 @@ class PluginDB(object):
                     name=name,
                     code=code,
                     file=file,
-                    descrip=plugin_module.DESCRIPTION,
+                    descrip=description,
                     attr=attr
                 )
             )

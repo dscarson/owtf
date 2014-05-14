@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2014, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,18 +18,28 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PASSIVE Plugin
+PASSIVE Plugin.
+
 """
-DESCRIPTION = "Panoptic, a tool for testing local file inclusion vulnerabilities"
-def run(Core, PluginInfo):
-         #Core.Config.Show()
-         Content = Core.PluginHelper.SuggestedCommandBox( PluginInfo, [ [ 'All', 'Testing_for_Path_Traversal_All' ]  ], 'Testing_for_Path_Traversal - Potentially useful commands' )
-         return Content
+
+
+from framework.plugin.plugins import PassivePlugin
+
+
+class TestingLFIPlugin(PassivePlugin):
+    """Panoptic, a tool for testing local file inclusion vulnerabilities."""
+
+    def run(self):
+        command_category_list = [['All', 'Testing_for_Path_Traversal_All']]
+        header = 'Testing_for_Path_Traversal - Potentially useful commands'
+        return self.suggest_command_box(
+            command_category_list,
+            header)

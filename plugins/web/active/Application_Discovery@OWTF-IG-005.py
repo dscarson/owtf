@@ -34,7 +34,7 @@ ACTIVE Plugin for Testing for Application Discovery (OWASP-IG-005)
 from framework.plugin.plugins import ActivePlugin
 
 
-class AppDiscoveryPlugin(ActivePlugin):
+class ApplicationDiscoveryPlugin(ActivePlugin):
     """Active probing for app discovery."""
 
     RESOURCES = 'ActiveDiscovery'

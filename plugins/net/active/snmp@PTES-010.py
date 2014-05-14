@@ -34,7 +34,7 @@ Plugin for probing snmp.
 from framework.plugin.plugins import ActivePlugin
 
 
-class SNMTProbingPlugin(ActivePlugin):
+class SNMPProbingPlugin(ActivePlugin):
     """SNMP Probing."""
 
     RESOURCES = 'SnmpProbeMethods'

@@ -34,7 +34,7 @@ PASSIVE Plugin for Testing for Application Discovery (OWASP-IG-005).
 from framework.plugin.plugins import PassivePlugin
 
 
-class WSInfoGatheringPlugin(PassivePlugin):
+class ApplicationDiscoveryPlugin(PassivePlugin):
     """Third party discovery resources."""
 
     RESOURCES = {
