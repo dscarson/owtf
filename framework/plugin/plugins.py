@@ -375,9 +375,49 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
 class GrepPlugin(AbstractPlugin):
     """Grep Passive plugin."""
 
-    def __init__(self, *args, **kwargs):
+    RE_HEADER = None
+    RE_BODY = None
+
+    def __init__(self,
+                 core,
+                 plugin_info,
+                 re_header=None,
+                 re_body=None,
+                 resources=None,
+                 lazy_resources=True,
+                 *args, **kwargs):
         """Self-explanatory."""
-        AbstractPlugin.__init__(self, *args, **kwargs)
+        self.re_header = re_header or self.RE_HEADER
+        self.re_body = re_body or self.RE_BODY
+        AbstractPlugin.__init__(
+            self,
+            core,
+            plugin_info,
+            resources,
+            lazy_resources,
+            *args, **kwargs)
+
+    def find_response_header_matches(self, re_header=None):
+        re_header = re_header or self.re_header
+        if isinstance(re_header, basestring):
+            re_header = [re_header]
+        result = []
+        for re_name in re_header:
+            self.type = 'ResponseHeaderMatches'
+            self.output = {'ResponseRegexpName': re_name}
+            result.append(self.dump())
+        return result
+
+    def find_response_body_matches(self, re_body=None):
+        re_body = re_body or self.re_body
+        if isinstance(re_body, basestring):
+            re_body = [re_body]
+        result = []
+        for re_name in re_body:
+            self.type = 'ResponseBodyMatches'
+            self.output = {'ResponseRegexpName': re_name}
+            result.append(self.dump())
+        return result
 
 
 class ExternalPlugin(AbstractPlugin):
