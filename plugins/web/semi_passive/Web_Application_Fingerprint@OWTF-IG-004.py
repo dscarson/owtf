@@ -41,5 +41,6 @@ class WebApplicationFingerprintPlugin(SemiPassivePlugin):
 
     def run(self):
         transaction_table = self.get_transaction_table_for_url_list()
-        self.prev_output = self.research_fingerprint_in_log() + transaction_table
-        return (self.command_run())
+        content = self.research_fingerprint_in_log() + transaction_table
+        self.prev_output = content
+        return (content + self.command_run())

@@ -31,7 +31,6 @@ PASSIVE Plugin for HTTP Methods Testing.
 """
 
 
-import logging
 from framework.plugin.plugins import PassivePlugin
 
 
@@ -43,4 +42,4 @@ class HTTPMethodsAndXSTPlugin(PassivePlugin):
 
     def run(self):
         self.core.log("Passive links generated for target")
-        PassivePlugin.run()
+        return PassivePlugin.run(self)

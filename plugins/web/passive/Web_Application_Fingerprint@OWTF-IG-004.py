@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2011, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,24 +18,59 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-PASSIVE Plugin for Testing for Web Application Fingerprint (OWASP-IG-004)
+PASSIVE Plugin for Testing for Web Application Fingerprint (OWASP-IG-004).
+
 """
 
-DESCRIPTION = "Third party resources and fingerprinting suggestions"
 
-def run(Core, PluginInfo):
-	#Core.Config.Show()
-	#Vuln search box to be built in core and reused in different plugins:
-	Content = Core.PluginHelper.VulnerabilitySearchBox('')
-	Content += Core.PluginHelper.ResourceLinkList('Online Resources', Core.DB.Resource.GetResources('PassiveFingerPrint'))
-	Content += Core.PluginHelper.SuggestedCommandBox( PluginInfo, [ [ 'All', 'CMS_FingerPrint_All' ], [ 'WordPress', 'CMS_FingerPrint_WordPress' ] , [ 'Joomla', 'CMS_FingerPrint_Joomla' ], [ 'Drupal', 'CMS_FingerPrint_Drupal' ], [ 'Mambo', 'CMS_FingerPrint_Mambo' ]  ], 'CMS Fingerprint - Potentially useful commands' )
-	return Content
+from framework.plugin.plugins import PassivePlugin
 
+
+class ApplicationDiscoveryPlugin(PassivePlugin):
+    """Third party resources and fingerprinting suggestions."""
+
+    RESOURCES = 'PassiveFingerPrint'
+
+    def run(self):
+        content = self.vulnerability_search_box()
+        content += self.resource_list_name('PassiveFingerPrint')
+        content += self.suggested_command_box([
+            ['All', 'CMS_FingerPrint_All'],
+            ['WordPress', 'CMS_FingerPrint_WordPress'],
+            ['Joomla', 'CMS_FingerPrint_Joomla'],
+            ['Drupal', 'CMS_FingerPrint_Drupal'],
+            ['Mambo', 'CMS_FingerPrint_Mambo']],
+            header='CMS Fingerprint - Potentially useful commands')
+
+    def vulnerability_search_box(self, search_str=''):
+        self.type = "VulnerabilitySearchBox"
+        self.output = {"SearchStr" : search_str}
+        return (self.dump())
+
+    # TODO: This must be factorize.
+    def resource_link_list(self,
+                           resource_list,
+                           resource_list_name='Online Resources'):
+        self._get_resources(resource_list)
+        self.type = 'ResourceLinkList'
+        self.output = {
+            'ResourceListName': resource_list_name,
+            'ResourceList': self.resources}
+        return (self.dump())
+
+    def suggested_command_box(self, command_category_list, header=''):
+        self._init_output_dir()
+        self.type = 'SuggestedCommandBox'
+        self.output = {
+            'PluginOutputDir': self.output_dir,
+            'CommandCategoryList': command_category_list,
+            'Header': header}
+        return (self.dump())

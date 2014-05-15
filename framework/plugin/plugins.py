@@ -121,6 +121,12 @@ class AbstractPlugin(object):
         self.core.CreateMissingDirs(output_dir)
         self.output_dir = output_dir
 
+    # TODO: Implement research_fingerprint_in_log
+    def research_fingerprint_in_log(self):
+        self.type = 'FingerprintData'
+        self.output = {}
+        return (self.dump())
+
     def dump(self, type='type', output='output'):
         """Return the result of a plugin.
 
@@ -268,6 +274,7 @@ class PassivePlugin(AbstractPlugin):
                  name=None,
                  *args, **kwargs):
         """Self-explanatory."""
+        self.name = name or self.NAME
         AbstractPlugin.__init__(
             self,
             core,
@@ -275,7 +282,6 @@ class PassivePlugin(AbstractPlugin):
             resources,
             lazy_resources
             *args, **kwargs)
-        self.name = name or self.NAME
 
     def _get_resources(self, resources_name):
         """Retrieve the resources of a passive plugin.
@@ -295,7 +301,7 @@ class PassivePlugin(AbstractPlugin):
                             self.core.DB.Resource.GetResources(resource_name)])
                     self.resources = resources
             else:
-                if isinstance(resource_name, basestring):
+                if isinstance(resources_name, basestring):
                     self.type = 'ResourceLinkList'
                     self.resources = self.core.DB.Resource.GetResources(
                         resources_name)
@@ -312,6 +318,7 @@ class PassivePlugin(AbstractPlugin):
 
     def run(self):
         """Run the passive plugin."""
+        self.type = 'ResourceLinkList'
         self.output = {'ResourceList': None}
         if not self.name is None:
             self.output['ResourceListName'] = self.name
@@ -392,12 +399,6 @@ class GrepPlugin(AbstractPlugin):
     def html_string(self, html_string):
         self.type = 'HtmlString'
         self.output = {'String': html_string}
-        return (self.dump())
-
-    # TODO: Implement research_fingerprint_in_log
-    def research_fingerprint_in_log(self):
-        self.type = 'FingerprintData'
-        self.output = {}
         return (self.dump())
 
     def find_top_transactions_by_speed(self, order="Desc"):

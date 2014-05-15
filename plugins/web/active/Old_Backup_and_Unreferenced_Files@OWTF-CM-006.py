@@ -43,8 +43,10 @@ class OldBackupAndUnrefFilesPlugin(ActivePlugin):
         self.core = core
         dir_buster_interaction = {
             True: 'DirBusterInteractive',
-            False: 'DirBusterNotInteractive'}
-        self.resources = [
+            False: 'DirBusterNotInteractive',
+            None: 'DirBusterNotInteractive'  # If no option has been specified.
+            }
+        self.resources_name = [
             dir_buster_interaction[self.core.DB.Config.Get('INTERACTIVE')],
             'DirBuster_Extract_URLs']
         # Call the mother's init method.
@@ -52,5 +54,5 @@ class OldBackupAndUnrefFilesPlugin(ActivePlugin):
             self,
             core,
             plugin_info,
-            resources=self.resources,
+            resources=self.resources_name,
             *args, **kwargs)

@@ -42,13 +42,13 @@ class CrossSiteFlashingPlugin(SemiPassivePlugin):
         url_list = []
         # Compute all url + file combinations.
         for file in ['crossdomain.xml', 'clientaccesspolicy.xml']:
-            url_list.append([
+            url_list.extend([
                 url + '/' + file
                 for url in self.core.DB.Target.GetAsList([
                     'TARGET_URL',
                     'TOP_URL'])])
         # The requester component will return a set of the URLs.
-        transaction_list = self.core.Requester.GetTransaction(True, url_list)
+        transaction_list = self.core.Requester.GetTransactions(True, url_list)
         # TODO: Check the following piece of code
         #for Transaction in TransactionList:
         #   Table.CreateRow([Core.Reporter.Render.DrawButtonLink(Transaction.URL, Transaction.URL)], True)
@@ -58,4 +58,4 @@ class CrossSiteFlashingPlugin(SemiPassivePlugin):
         #       Table.CreateRow([NotFoundMsg])
         #       Core.log(NotFoundMsg)
         #return Table.Render() + Core.Reporter.DrawHTTPTransactionTable(TransactionList)
-        return self.get_transaction_table()
+        return self.get_transaction_table(transaction_list)
