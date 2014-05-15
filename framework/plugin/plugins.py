@@ -3,8 +3,7 @@ import re
 from framework.lib.general import PluginAbortException, FrameworkAbortException
 from framework.lib.general import WipeBadCharsForFilename as clean_filename
 from framework.lib.general import log
-from framework.db.plugin_manager import WEB_GROUP, NET_GROUP, AUX_GROUP, \
-                                        TEST_GROUPS
+from framework.db.plugin_manager import TEST_GROUPS
 
 
 # TODO: Checks if already declared elsewhere
@@ -46,9 +45,9 @@ class AbstractPlugin(object):
         # Keep track of the elapsed time
         self.elapsed_time = None
         # A plugin contains several information like a group, a type, etc.
-        self.info = None
+        self.plugin_info = None
         if AbstractPlugin.is_valid_info(plugin_info):
-            self.info = plugin_info
+            self.plugin_info = plugin_info
         else:  # The information are not valid, throw something
             # TODO: Create a custom error maybe?
             raise ValueError(
@@ -111,20 +110,13 @@ class AbstractPlugin(object):
     def _init_output_dir(self):
         """Returns the output path of the plugin."""
         # Retrieve the relative path of the plugin output.
-        base_path = ''
-        if self.info['group'] in [WEB_GROUP, NET_GROUP]:
-            base_path = self.core.DB.Target.GetPath('PARTIAL_URL_OUTPUT_PATH')
-        elif self.info['group'] == AUX_GROUP:
-            base_path = self.core.Config.Get('AUX_OUTPUT_PATH')
-        output_dir = os.path.join(
-            base_path,
-            os.path.join(
-                clean_filename(self.info['title']), self.info['type'])
-            )
+        output_dir = self.core.PluginHandler.GetPluginOutputDir(
+            self.plugin_info)
         # FULL output path for plugins to use
         self.core.DB.Target.SetPath(
             'PLUGIN_OUTPUT_DIR',
             os.path.join(os.getcwd(), output_dir))
+        self.core.Shell.RefreshReplacements()
         # Force the creation of the directory if it does not exist yet.
         self.core.CreateMissingDirs(output_dir)
         self.output_dir = output_dir
@@ -217,7 +209,7 @@ class ActivePlugin(AbstractPlugin):
                 'RelativeFilePath': self.core.PluginHandler.DumpOutputFile(
                     name,
                     self.raw_output,
-                    self.info,
+                    self.plugin_info,
                     RelativePath=True),
                 'OutputIntro': self.output_intro,
                 'TimeStr': self.elapsed_time}
@@ -328,17 +320,13 @@ class PassivePlugin(AbstractPlugin):
         return (self.dump())
 
 
-# TODO: Multiple inheritance is most of the time due to bad design. Should have
-# a look on how to change the plugin class hierarchy in order to avoid multiple
-# inheritance.
-class SemiPassivePlugin(ActivePlugin, PassivePlugin):
+class SemiPassivePlugin(ActivePlugin):
     """Semi Passive plugin."""
+
+    RESOURCES = None
 
     def __init__(self, *args, **kwargs):
         """Self-explanatory."""
-        # FIXME: Current implementation does not work:
-        # AttributeError: 'NamePlugin' object has no attribute 'name'
-        PassivePlugin.__init__(self, *args, **kwargs)
         ActivePlugin.__init__(self, *args, **kwargs)
 
     def get_transaction_table(self, transaction_list):
