@@ -36,7 +36,7 @@ This will perform a "low-hanging-fruit" pass on the web app for easy to find
 from framework.plugin.plugins import ActivePlugin
 
 
-class ApplicationDiscoveryPlugin(ActivePlugin):
+class NiktoUnauthPlugin(ActivePlugin):
     """Active Vulnerability Scanning without credentials via nikto."""
 
     RESOURCES = ['Nikto_Unauth', 'Nikto_Verify_unauth']

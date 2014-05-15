@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2013, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,8 +18,8 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -26,17 +27,25 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 GREP Plugin for Spiders,Crawlers and Robots
-NOTE: GREP plugins do NOT send traffic to the target and only grep the HTTP Transaction Log
+NOTE: GREP plugins do NOT send traffic to the target and only grep the HTTP
+Transaction Log.
+
 """
 
-import string, re
-import cgi
 
-DESCRIPTION = "Searches transaction DB for Robots meta tag and X-Robots-Tag HTTP header"
+from framework.plugin.plugins import GrepPlugin
 
-def run(Core, PluginInfo):
-    #Core.Config.Show()
-    Content = Core.PluginHelper.HtmlString("This plugin looks for Robots meta tag and X-Robots-Tag HTTP header<br />")
-    Content += Core.PluginHelper.FindResponseHeaderMatchesForRegexpName('HEADERS_FOR_ROBOTS')
-    Content += Core.PluginHelper.FindResponseBodyMatchesForRegexpName('RESPONSE_REGEXP_FOR_ROBOTS_META_TAG')
-    return Content
+
+class SpidersRobotsAndCrawlersPlugin(GrepPlugin):
+    """Searches transaction DB for Robots meta tag and X-Robots-Tag HTTP header."""
+
+    RE_HEADER = ['HEADERS_FOR_ROBOTS']
+    RE_BODY = ['RESPONSE_REGEXP_FOR_ROBOTS_META_TAG']
+
+    def run(self):
+        result = self.html_string(
+            'This plugin looks for Robots meta tag and X-Robots-Tag HTTP'
+            'header<br />')
+        result += self.find_response_header_matches()
+        result += self.find_response_body_matches()
+        return result

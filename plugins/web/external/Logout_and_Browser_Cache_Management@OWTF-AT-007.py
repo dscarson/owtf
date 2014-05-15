@@ -37,7 +37,7 @@ Transaction Log.
 from framework.plugin.plugins import ExternalPlugin
 
 
-class LogoutBrowserCacheManagementPlugin(ExternalPlugin):
+class LogoutAndBrowserCacheManagementPlugin(ExternalPlugin):
     """Plugin to assist manual testing."""
 
     def run(self):

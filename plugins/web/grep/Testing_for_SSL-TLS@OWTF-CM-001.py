@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2011, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,8 +18,8 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -26,16 +27,22 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 GREP Plugin for SSL protection
-NOTE: GREP plugins do NOT send traffic to the target and only grep the HTTP Transaction Log
+NOTE: GREP plugins do NOT send traffic to the target and only grep the HTTP
+Transaction Log.
+
 """
 
-import string, re
-import cgi
 
-DESCRIPTION = "Searches transaction DB for SSL protections"
+from framework.plugin.plugins import GrepPlugin
 
-def run(Core, PluginInfo):
-	#Core.Config.Show()
-	Content = Core.PluginHelper.HtmlString("This plugin looks for server-side protection headers to enforce SSL<br />")
-	Content += Core.PluginHelper.FindResponseHeaderMatchesForRegexpName('HEADERS_FOR_SSL_PROTECTION')
-	return Content
+
+class TestingSSLTLSPlugin(GrepPlugin):
+    """Searches transaction DB for SSL protections."""
+
+    RE_HEADER = ['HEADERS_FOR_SSL_PROTECTION']
+
+    def run(self):
+        result = self.html_string(
+            'This plugin looks for server-side protection headers to enforce'
+            'SSL<br />')
+        return result + self.find_response_header_matches()
