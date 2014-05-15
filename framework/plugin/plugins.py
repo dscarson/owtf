@@ -98,10 +98,12 @@ class AbstractPlugin(object):
         if (not 'group' in info or
                 ('group' in info and not info['group'] in TEST_GROUPS)):
             return False
+        # FIXME: All the types are not declared, like 'bruteforce' for
+        # instance.
         # Check if a type is specified and if it is a valid one.
-        if (not 'type' in info or
-                ('type' in info and not info['type'] in VALID_TYPES)):
-            return False
+        #if (not 'type' in info or
+        #        ('type' in info and not info['type'] in VALID_TYPES)):
+        #    return False
         # TODO: Check the other info.
         # Everything's fine about the information
         return True
@@ -145,7 +147,7 @@ class ActivePlugin(AbstractPlugin):
                  plugin_info,
                  resources=None,
                  lazy_resources=False,
-                 cmd_intro='Test command',
+                 cmd_intro='Test Command',
                  output_intro='Output',
                  prev_output=None,
                  *args, **kwargs):
@@ -205,14 +207,14 @@ class ActivePlugin(AbstractPlugin):
         if self.resources is None:
             self._get_resources(self.resources_name)
         output_list = []
-        for name, cmd in resources:
+        for name, cmd in self.resources:
             self.run_shell_command(cmd)
             self.type = 'CommandDump'
             self.output = {
                 'Name': self.get_filename_and_extension(name)[0],
                 'CommandIntro': self.cmd_intro,
                 'ModifiedCommand': self.cmd_modified,
-                'RelativeFilePath': self.core.PluginHandler.DumpOuputFile(
+                'RelativeFilePath': self.core.PluginHandler.DumpOutputFile(
                     name,
                     self.raw_output,
                     self.info,
@@ -334,7 +336,10 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
 
     def __init__(self, *args, **kwargs):
         """Self-explanatory."""
-        AbstractPlugin.__init__(self, *args, **kwargs)
+        # FIXME: Current implementation does not work:
+        # AttributeError: 'NamePlugin' object has no attribute 'name'
+        PassivePlugin.__init__(self, *args, **kwargs)
+        ActivePlugin.__init__(self, *args, **kwargs)
 
     def get_transaction_table(self, transaction_list):
         """Add the transaction IDs to the output.
@@ -343,7 +348,7 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
 
         """
         transaction_ids = [
-            transaction.GetId() for transaction in transaction_list]
+            transaction.GetID() for transaction in transaction_list]
         self.type = 'TransactionTableFromIDs'
         self.output = {'TransactionIDs': transaction_ids}
         return (self.dump())

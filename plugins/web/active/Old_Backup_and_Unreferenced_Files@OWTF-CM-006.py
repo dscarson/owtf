@@ -40,6 +40,7 @@ class OldBackupAndUnrefFilesPlugin(ActivePlugin):
 
     def __init__(self, core, plugin_info, *args, **kwargs):
         """Override the default initialization of an ActivePlugin."""
+        self.core = core
         dir_buster_interaction = {
             True: 'DirBusterInteractive',
             False: 'DirBusterNotInteractive'}

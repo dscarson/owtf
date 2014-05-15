@@ -44,6 +44,7 @@ import signal
 import sys
 import termios
 import time
+import json
 
 INTRO_BANNER_GENERAL = """
 Short Intro:
@@ -242,7 +243,7 @@ class PluginHandler:
                     Path + '/')
                 # Create an instance of the plugin class
                 plugin_instance = plugin_module.__dict__[
-                    Plugin['attr']['classname']](
+                    json.loads(Plugin['attr'])['classname']](
                         self.Core, Plugin)
                 # Run the plugin
                 plugin_output = plugin_instance.run()

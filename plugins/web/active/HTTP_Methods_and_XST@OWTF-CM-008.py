@@ -41,7 +41,7 @@ class HTTPMethodsAndXSTPlugin(SemiPassivePlugin):
 
     def run(self):
         """Override of the default run command of an ActivePlugin."""
-        url = self.core.Target.Get('TOP_URL')
+        url = self.core.DB.Target.Get('TOP_URL')
         # TODO: PUT not working right yet
         #PUT_URL = URL+"/_"+Core.Random.GetStr(20)+".txt"
         #print PUT_URL
