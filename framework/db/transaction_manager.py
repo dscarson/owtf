@@ -239,16 +239,15 @@ class TransactionManager(object):
         session.close()
         return(self.DeriveTransactions(model_objs))
 
-    def GetTopTransactionIDsBySpeed(self, Num = 10, Order = "Asc"):
+    def GetTopTransactionsBySpeed(self, Order = "Desc", Num = 10):
         Session = self.Core.DB.Target.GetTransactionDBSession()
         session = Session()
         if Order == "Desc":
-            results = session.query(models.Transaction.id).order_by(desc(models.Transaction.time)).limit(Num)
+            results = session.query(models.Transaction).order_by(desc(models.Transaction.time)).limit(Num)
         else:
-            results = session.query(models.Transaction.id).order_by(asc(models.Transaction.time)).limit(Num)
+            results = session.query(models.Transaction).order_by(asc(models.Transaction.time)).limit(Num)
         session.close()
-        results = [i[0] for i in results]
-        return(results) # Return list of matched IDs
+        return(self.DeriveTransactions(results))
 
     def CompileHeaderRegex(self, header_list):
         return(re.compile('('+'|'.join(header_list)+'): ([^\r]*)', re.IGNORECASE))
@@ -270,7 +269,7 @@ class TransactionManager(object):
         grep_output = {}
         for regex_name, regex in self.regexs['HEADERS'].items():
             grep_output.update(self.GrepResponseHeaders(regex_name, regex, owtf_transaction))
-        for regex_name in self.regexs['BODY'].items():
+        for regex_name, regex in self.regexs['BODY'].items():
             grep_output.update(self.GrepResponseBody(regex_name, regex, owtf_transaction))
         return(grep_output)
 
@@ -282,9 +281,10 @@ class TransactionManager(object):
 
     def Grep(self, regex_name, regex, data):
         results = regex.findall(data)
+        output = {}
         if results:
-            return({regex_name: results})
-        return({})
+            output.update({regex_name: results})
+        return(output)
 
     def SearchByRegexName(self, regex_name, target = None):
         Session = self.Core.DB.Target.GetTransactionDBSession(target)
@@ -307,9 +307,9 @@ class TransactionManager(object):
 
 #-------------------------------------------------- API Methods --------------------------------------------------
     def DeriveTransactionDict(self, tdb_obj, include_raw_data = False):
-        tdict = dict(tdb_obj.__dict__) # Create a new copy so no accidental changes
+        tdict = dict(tdb_obj.__dict__)  # Create a new copy so no accidental changes
         tdict.pop("_sa_instance_state")
-        tdict.pop("grep_output")
+        tdict.pop("grep_output")  # grep_output only required by OWTF and not for any API user
         if not include_raw_data:
             tdict.pop("raw_request", None)
             tdict.pop("response_headers", None)
