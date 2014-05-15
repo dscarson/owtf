@@ -333,10 +333,6 @@ class SemiPassivePlugin(ActivePlugin, PassivePlugin):
         """Self-explanatory."""
         AbstractPlugin.__init__(self, *args, **kwargs)
 
-    # TODO: Implement research_fingerprint_in_log
-    def research_fingerprint_in_log(self):
-        pass
-
     def get_transaction_table(self, transaction_list):
         """Add the transaction IDs to the output.
 
@@ -396,6 +392,17 @@ class GrepPlugin(AbstractPlugin):
             resources,
             lazy_resources,
             *args, **kwargs)
+
+    def html_string(self, html_string):
+        self.type = 'HtmlString'
+        self.output = {'String': html_string}
+        return (self.dump())
+
+    # TODO: Implement research_fingerprint_in_log
+    def research_fingerprint_in_log(self):
+        self.type = 'FingerprintData'
+        self.output = {}
+        return (self.dump())
 
     def find_response_header_matches(self, re_header=None):
         re_header = re_header or self.re_header
