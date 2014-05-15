@@ -199,10 +199,13 @@ class ActivePlugin(AbstractPlugin):
         return self.command_run()
 
     # TODO: This function looks messy! It should be modified
-    def command_run(self):
+    def command_run(self, resources=None):
         """Run the plugin command and format its output."""
+        self.resources_name = resources or self.resources_name
+        if self.resources is None:
+            self._get_resources(self.resources_name)
         output_list = []
-        for name, cmd in self.resources:
+        for name, cmd in resources:
             self.run_shell_command(cmd)
             self.type = 'CommandDump'
             self.output = {
@@ -402,6 +405,11 @@ class GrepPlugin(AbstractPlugin):
     def research_fingerprint_in_log(self):
         self.type = 'FingerprintData'
         self.output = {}
+        return (self.dump())
+
+    def find_top_transactions_by_speed(self, order="Desc"):
+        self.type = 'TopTransactionsBySpeed'
+        self.output = {'Order': Order}
         return (self.dump())
 
     def find_response_header_matches(self, re_header=None):
