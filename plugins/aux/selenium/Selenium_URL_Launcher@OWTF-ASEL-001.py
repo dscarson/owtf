@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2011, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,8 +18,8 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -26,27 +27,42 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-import logging
-DESCRIPTION = "Sends a bunch of URLs through selenium"
-CATEGORIES = [ 'RCE', 'SQLI', 'XSS', 'CHARSET' ] 
-def run(Core, PluginInfo):
-	#Core.Config.Show()
-    
-	Core.log("WARNING: This plugin requires a small selenium installation, please run '"+Core.Config.Get('INSTALL_SCRIPT')+"' if you have issues")
-	Content = DESCRIPTION + " Results:<br />"
-	for Args in Core.PluginParams.GetArgs( { 
-'Description' : DESCRIPTION,
-'Mandatory' : { 
-		'BASE_URL' : 'The URL to be pre-pended to the tests',
-		'CATEGORY' : 'Category to use (i.e. '+', '.join(sorted(CATEGORIES))+')'
-		},
-'Optional' : {
-		'REPEAT_DELIM' : Core.Config.Get('REPEAT_DELIM_DESCRIP')
-	     } }, PluginInfo):
-		Core.PluginParams.SetConfig(Args)
-		#print "Args="+str(Args)
-		InputFile = Core.Config.Get("SELENIUM_URL_VECTORS_"+Args['CATEGORY'])
-		URLLauncher = Core.Selenium.CreateURLLauncher( { 'BASE_URL' : Args['BASE_URL'], 'INPUT_FILE' : InputFile } )
-		URLLauncher.Run()
-	return Content
 
+
+import logging
+from framework.plugin.plugins import ActivePlugin
+
+
+class SeleniumURLLauncherPlugin(ActivePlugin):
+    """Sends a bunch of URLs through selenium"""
+
+    CATEGORIES = ['RCE', 'SQLI', 'XSS', 'CHARSET']
+
+    def run(self):
+        self.core.log(
+            "WARNING: This plugin requires a small selenium installation, "
+            "please run '" + self.core.Config.Get('INSTALL_SCRIPT') +
+            "' if you have issues")
+        content = self.__doc__ + ' Results:<br />'
+        for args in self.core.PluginParams.GetArgs({
+                'Description': self.__doc__,
+                'Mandatory': {
+                    'BASE_URL' : 'The URL to be pre-pended to the tests',
+                    'CATEGORY' :
+                        'Category to use (i.e. ' +
+                        ', '.join(sorted(CATEGORIES))+')',
+                    },
+                'Optional': {
+                    'REPEAT_DELIM': self.core.Config.Get(
+                        'REPEAT_DELIM_DESCRIP')
+                    }
+                },
+                self.plugin_info):
+            self.core.PluginParams.SetConfig(args)
+            input_file = self.core.Config.Get(
+                'SELENIUM_URL_VECTORS_' + args['CATEGORY'])
+            url_launcher = self.core.selenium.CreateURLLauncher({
+                'BASE_URL': args['BASE_URL'],
+                'INPUT_FILE': input_file})
+            url_launcher.Run()
+        return content

@@ -1,4 +1,5 @@
 """
+
 owtf is an OWASP+PTES-focused try to unite great tools and facilitate pen testing
 Copyright (c) 2011, Abraham Aranguren <name.surname@gmail.com> Twitter: @7a_ http://7-a.org
 All rights reserved.
@@ -17,8 +18,8 @@ modification, are permitted provided that the following conditions are met:
 THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
 ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
 WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY
-DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
+ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
 (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
 LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
 ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
@@ -26,32 +27,44 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-DESCRIPTION = "Targeted Phishing Testing plugin"
-def run(Core, PluginInfo):
-	#Core.Config.Show()
-	Content = DESCRIPTION + " Results:<br />"
-	for Args in Core.PluginParams.GetArgs( { 
-'Description' : DESCRIPTION,
-'Mandatory' : { 
-		'EMAIL_TARGET' : Core.Config.Get('EMAIL_TARGET_DESCRIP'),
-		'EMAIL_FROM' : Core.Config.Get('EMAIL_FROM_DESCRIP'),
-		'SMTP_LOGIN' : Core.Config.Get('SMTP_LOGIN_DESCRIP'),
-		'SMTP_PASS' : Core.Config.Get('SMTP_PASS_DESCRIP'),
-		'SMTP_HOST' : Core.Config.Get('SMTP_HOST_DESCRIP'),
-		'SMTP_PORT' : Core.Config.Get('SMTP_PORT_DESCRIP'),
-		'EMAIL_PRIORITY' : Core.Config.Get('EMAIL_PRIORITY_DESCRIP'),
-		'EMAIL_SUBJECT' : Core.Config.Get('EMAIL_SUBJECT_DESCRIP'),
-		'EMAIL_BODY' : Core.Config.Get('EMAIL_BODY_DESCRIP'), 
-	      },
-'Optional' : {
-		'EMAIL_ATTACHMENT' : Core.Config.Get('EMAIL_ATTACHMENT_DESCRIP'),
-		'REPEAT_DELIM' : Core.Config.Get('REPEAT_DELIM_DESCRIP')
-	     } }, PluginInfo):
-		Core.PluginParams.SetConfig(Args) # Update config
-		#print "Args="+str(Args)
-		if Core.SMTP.Send(Args):
-			Content += "Email delivered succcessfully"
-		else:
-			Content += "Email delivery failed"
-		#Content += Core.PluginHelper.DrawCommandDump('Test Command', 'Output', Core.Config.GetResources('SendPhishingAttackviaSET'), PluginInfo, Content)
-	return Content
+
+
+from framework.plugin.plugins import ActivePlugin
+
+
+class TargetedPhishingPlugin(ActivePlugin):
+    """Targeted Phishing Testing plugin"""
+
+    def run(self):
+        content = self.__doc__ + ' Results:<br />'
+        for args in self.core.PluginParams.GetArgs({
+                'Description': self.__doc__,
+                'Mandatory': {
+                    'EMAIL_TARGET': self.core.Config.Get('EMAIL_TARGET_DESCRIP'),
+                    'EMAIL_FROM': self.core.Config.Get('EMAIL_FROM_DESCRIP'),
+                    'SMTP_LOGIN': self.core.Config.Get('SMTP_LOGIN_DESCRIP'),
+                    'SMTP_PASS': self.core.Config.Get('SMTP_PASS_DESCRIP'),
+                    'SMTP_HOST': self.core.Config.Get('SMTP_HOST_DESCRIP'),
+                    'SMTP_PORT': self.core.Config.Get('SMTP_PORT_DESCRIP'),
+                    'EMAIL_PRIORITY': self.core.Config.Get(
+                        'EMAIL_PRIORITY_DESCRIP'),
+                    'EMAIL_SUBJECT': self.core.Config.Get(
+                        'EMAIL_SUBJECT_DESCRIP'),
+                    'EMAIL_BODY': self.core.Config.Get('EMAIL_BODY_DESCRIP'),
+                  },
+                'Optional': {
+                    'EMAIL_ATTACHMENT': self.core.Config.Get(
+                        'EMAIL_ATTACHMENT_DESCRIP'),
+                    'REPEAT_DELIM': self.core.Config.Get(
+                        'REPEAT_DELIM_DESCRIP')},
+                },
+                self.plugin_info):
+            self.core.PluginParams.SetConfig(args) # Update config
+            #print "Args="+str(Args)
+            if self.core.SMTP.Send(args):
+                content += 'Email delivered succcessfully'
+            else:
+                content += 'Email delivery failed'
+            #Content += Core.PluginHelper.DrawCommandDump('Test Command', 'Output', Core.Config.GetResources('SendPhishingAttackviaSET'), PluginInfo, Content)
+        return content
+
