@@ -236,17 +236,31 @@ class PluginHandler:
                 (Path, Name) = os.path.split(PluginPath)
                 #(Name, Ext) = os.path.splitext(Name)
                 #self.Core.DB.Debug.Add("Running Plugin -> Plugin="+str(Plugin)+", PluginDir="+str(PluginDir))
+                plugin_output = None
                 # Load the plugin
                 plugin_module = self.GetModule(
                     '',
                     Name,
                     Path + '/')
-                # Create an instance of the plugin class
-                plugin_instance = plugin_module.__dict__[
-                    json.loads(Plugin['attr'])['classname']](
-                        self.Core, Plugin)
-                # Run the plugin
-                plugin_output = plugin_instance.run()
+                # First try to find the class of the plugin (newest).
+                try:
+                    # Create an instance of the plugin class
+                    plugin_instance = plugin_module.__dict__[
+                        json.loads(Plugin['attr'])['classname']](
+                            self.Core, Plugin)
+                    # Run the plugin
+                    plugin_output = plugin_instance.run()
+                except KeyError:
+                    # Second try to find the old fashioned way.
+                    try:
+                        cprint(
+                            'WARNING: Running the plugin ' + PluginPath +
+                            ' the old fashioned way.')
+                        plugin_output = plugin_module.run(
+                            self.Core,
+                            Plugin)
+                    except AttributeError:
+                        pass
                 #if save_output:
                     #print(PluginOutput)
                     #self.SavePluginInfo(PluginOutput, Plugin) # Timer retrieved here

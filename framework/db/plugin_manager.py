@@ -131,28 +131,32 @@ class PluginDB(object):
                         plugin_instance.append(obj)
                 except TypeError:  # The current dict value is not an object.
                     pass
-            # If no class has been found, skip the plugin. It must be
-            # malformed.
+            # If no class has been found, try the old fashioned way.
             if not plugin_instance:
-                cprint(
-                    'WARNING: the plugin ' + pathname +
-                    ' DID NOT define a class => SKIPPED.')
-                continue
-            # Keep in mind that a plugin SHOULD NOT have more than one class.
-            # The default behaviour is to save the last found.
-            class_name = class_name[-1]
-            plugin_instance = plugin_instance[-1]
-            attr = {'classname': class_name}
-            try:
-                attr.update(plugin_instance.ATTR)
-            except AttributeError:  # The plugin didn't define an attr dict.
-                pass
-            finally:
-                attr = json.dumps(attr)
-            try:
-                description = plugin_instance.__doc__
-            except AttributeError:
-                description = ''
+                attr = {'classname': None}
+                try:
+                    attr.update(plugin_module.ATTR)
+                except AttributeError:
+                    pass
+                try:
+                    description = plugin_module.DESCRIPTION
+                except AttributeError:
+                    description = ''
+            else:
+                # Keep in mind that a plugin SHOULD NOT have more than one
+                # class. The default behaviour is to save the last found.
+                class_name = class_name[-1]
+                plugin_instance = plugin_instance[-1]
+                attr = {'classname': class_name}
+                try:  # Did the plugin define an attr dict?
+                    attr.update(plugin_instance.ATTR)
+                except AttributeError:
+                    pass
+                try:
+                    description = plugin_instance.__doc__
+                except AttributeError:
+                    description = ''
+            attr = json.dumps(attr)
             # Save the plugin into the database.
             session.merge(
                 models.Plugin(
