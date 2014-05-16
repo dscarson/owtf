@@ -34,7 +34,8 @@ vulnerability scanner spiders which may be considered sensitive or include
 vulnerability probing.
 
 """
-import logging
+
+
 from framework.plugin.plugins import ActivePlugin
 
 
