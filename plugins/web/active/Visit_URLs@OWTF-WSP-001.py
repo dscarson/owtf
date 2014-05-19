@@ -40,17 +40,14 @@ from framework.plugin.plugins import ActivePlugin
 
 
 class VisitURLsPlugin(ActivePlugin):
-    """Visit URLs found by other tools.
-
-    Some could be sensitive: need permission.
-
-    """
+    """Visit URLs found by other tools, some could be sensitive: need permission."""
 
     def run(self):
         urls = self.core.DB.URL.GetURLsToVisit()
         for url in urls:
             self.core.Requester.GetTransaction(True, url)
+        output = str(len(urls)) + ' URLs were visited.'
+        self.core.log(output)
         self.type = 'Html'
-        self.output = str(len(urls)) + ' URLs were visited.'
-        self.core.log(self.output)
+        self.output = {'String': output}
         return (self.dump())
