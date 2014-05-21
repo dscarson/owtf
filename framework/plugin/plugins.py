@@ -218,7 +218,7 @@ class ActivePlugin(AbstractPlugin):
 
             # This command returns URLs for processing
             if name == self.core.Config.FrameworkConfigGet('EXTRACT_URLS_RESERVED_RESOURCE_NAME'):
-                plugin_output = self.log_urls()
+                plugin_output = self.log_urls_from_str()
 
             if self.plugin_abort:
                 raise PluginAbortException(self.prev_output + plugin_output)
@@ -228,12 +228,12 @@ class ActivePlugin(AbstractPlugin):
             output_list += plugin_output
         return (output_list)
 
-    def log_urls(self):
+    def log_urls_from_str(self):
         """Retrieve the URLs that have beend visited already."""
         # Keep track of the elapsed time.
-        self.core.Timer.StartTimer('log_urls')
+        self.core.Timer.StartTimer('log_urls_from_str')
         urls = self.raw_output.strip().split('\n')
-        self.core.DB.URL.ImportUrls(urls)
+        self.core.DB.URL.ImportURLs(urls)
         nb_found = 0
         visit_urls = False
         # TODO: Whether or not active testing will depend on the user profile
@@ -245,7 +245,8 @@ class ActivePlugin(AbstractPlugin):
                 for transaction in self.core.Requester.GetTransactions(
                     True, self.core.DB.URL.GetURLsToVisit())
                 ])
-        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr('log_urls')
+        self.elapsed_time = self.core.Timer.GetElapsedTimeAsStr(
+            'log_urls_from_str')
         log('Spider/URL scraper time=' + self.elapsed_time)
         self.type = 'URLsFromStr'
         self.output = {
