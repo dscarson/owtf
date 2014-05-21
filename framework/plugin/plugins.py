@@ -1,30 +1,9 @@
 import os
-import re
 from framework.lib.general import PluginAbortException, FrameworkAbortException
-from framework.lib.general import WipeBadCharsForFilename as clean_filename
 from framework.lib.general import log
 from framework.db.plugin_manager import TEST_GROUPS
 
 
-# TODO: Checks if already declared elsewhere
-# Defines the valid type for a plugin
-PLUGIN_ABSTRACT = 'abstract'
-PLUGIN_ACTIVE = 'active'
-PLUGIN_PASSIVE = 'passive'
-PLUGIN_SEMI_PASSIVE = 'semi_passive'
-PLUGIN_GREP = 'grep'
-PLUGIN_EXTERNAL = 'external'
-VALID_TYPES = [
-    PLUGIN_ABSTRACT,
-    PLUGIN_ACTIVE,
-    PLUGIN_PASSIVE,
-    PLUGIN_SEMI_PASSIVE,
-    PLUGIN_GREP,
-    PLUGIN_EXTERNAL]
-
-
-# TODO: Might be pertinent to inherit AbstractPlugin from dict because of the
-# `plugin_output`.
 class AbstractPlugin(object):
     """Abstract plugin declaring basics methods."""
 
@@ -65,10 +44,14 @@ class AbstractPlugin(object):
         self.output = None
         self.type = None
 
-    # TODO: Write the docstring.
     def get_filename_and_extension(self, input_name):
+        """From input_name returns a list of its name and its extension.
+
+        Extension is 'txt' by default, except 'html' is found.
+
+        """
         output_name = input_name
-        output_extension = 'txt'
+        output_extension = 'txt'  # Default extension.
         if input_name.split('.')[-1] in ['html']:
             output_name = input_name[:-5]
             output_extension = 'html'
@@ -79,7 +62,12 @@ class AbstractPlugin(object):
         raise NotImplementedError('A plugin MUST implement the run method.')
 
     def _get_resources(self, resources_name):
-        """Retrieve the resources of the plugin."""
+        """Retrieve the resources of the plugin.
+
+        If `resources_name` is a list, the plugin will loads each of its
+        elements.
+
+        """
         # If the plugin was configured as lazy, it is now time to load the
         # resources.
         if self.resources is None:
@@ -92,23 +80,25 @@ class AbstractPlugin(object):
 
     @staticmethod
     def is_valid_info(info):
-        """Check that the information of a plugin is correct."""
+        """Check that the information of a plugin is correct.
+
+        Currently checks that the plugin's group is valid.
+
+        """
         # Check if a group is specified and if it is a valid one.
         if (not 'group' in info or
                 ('group' in info and not info['group'] in TEST_GROUPS)):
             return False
-        # FIXME: All the types are not declared, like 'bruteforce' for
-        # instance.
-        # Check if a type is specified and if it is a valid one.
-        #if (not 'type' in info or
-        #        ('type' in info and not info['type'] in VALID_TYPES)):
-        #    return False
         # TODO: Check the other info.
         # Everything's fine about the information
         return True
 
     def _init_output_dir(self):
-        """Returns the output path of the plugin."""
+        """Returns the output path of the plugin.
+
+        If the plugin's output directory does not exist, force it's creation.
+
+        """
         # Retrieve the relative path of the plugin output.
         output_dir = self.core.PluginHandler.GetPluginOutputDir(
             self.plugin_info)
@@ -138,7 +128,12 @@ class AbstractPlugin(object):
 
 
 class ActivePlugin(AbstractPlugin):
-    """Active plugin."""
+
+    """Active plugin.
+
+    An active plugin is excepted to run shell command.
+
+    """
 
     def __init__(self,
                  core,
@@ -198,13 +193,13 @@ class ActivePlugin(AbstractPlugin):
         """
         return self.command_run()
 
-    # TODO: This function looks messy! It should be modified
     def command_run(self, resources=None):
-        """Run the plugin command and format its output."""
+        """Run the plugin command(s) and format its output."""
         self.resources_name = resources or self.resources_name
         if self.resources is None:
             self._get_resources(self.resources_name)
         output_list = []
+        # A plugin might use several resources.
         for name, cmd in self.resources:
             self.run_shell_command(cmd)
             self.type = 'CommandDump'
@@ -233,8 +228,8 @@ class ActivePlugin(AbstractPlugin):
             output_list += plugin_output
         return (output_list)
 
-    # TODO: Write the doc string.
     def log_urls(self):
+        """Retrieve the URLs that have beend visited already."""
         # Keep track of the elapsed time.
         self.core.Timer.StartTimer('log_urls')
         urls = self.raw_output.strip().split('\n')
@@ -262,7 +257,7 @@ class ActivePlugin(AbstractPlugin):
 
 
 class PassivePlugin(AbstractPlugin):
-    """Passive plugin using link lists."""
+    """Passive plugin."""
 
     NAME = None
 
