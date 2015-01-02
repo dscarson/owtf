@@ -96,12 +96,14 @@ class Config(BaseComponent, ConfigInterface):
             'config',
             'framework_config.cfg'))
         # The following line must be removed after fixing an issue
-        self.LoadProfiles({})
+        #self.LoadProfiles({})
+
+    def target_init(self):
+        self.target = self.get_component("target")
 
     def init(self):
         self.resource = self.get_component("resource")
         self.error_handler = self.get_component("error_handler")
-        self.target = self.get_component("target")
         self.db_plugin = self.get_component("db_plugin")
         self.worklist_manager = self.get_component("worklist_manager")
 

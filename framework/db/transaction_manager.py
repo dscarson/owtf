@@ -63,12 +63,15 @@ class TransactionManager(BaseComponent, TransactionInterface):
         self.db = self.get_component("db")
         self.target = self.get_component("target")
         self.url_manager = self.get_component("url_manager")
-        self.zest = self.get_component("zest")
+     #  self.zest = self.get_component("zest")
         self.regexs = defaultdict(list)
         for regex_type in REGEX_TYPES:
             self.regexs[regex_type] = {}
         self.CompileRegexs()
 
+    def init(self):
+        self.zest = self.get_component("zest")
+        
     @target_required
     def NumTransactions(self, scope=True, target_id=None):
         """Return num transactions in scope by default."""

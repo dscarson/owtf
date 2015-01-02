@@ -57,27 +57,31 @@ class ComponentInitialiser():
         except:
             raise DatabaseNotRunningException()
         WorklistManager()
-        db_config = ConfigDB()
         CommandRegister()
         TargetDB()
-        ResourceDB()
-        ErrorDB()
-        MappingDB()
+        error = ErrorDB()
         VulnexpDB()
-        Timer(db_config.Get('DATE_TIME_FORMAT'))
-        PluginDB()
-        zest = Zest()
         URLManager()
         TransactionManager()
-        config.init()
-        zest.init()
+        plugin = PluginDB()
+        return (config,plugin)
 
     @staticmethod
-    def initialisation_phase_2(args):
+    def initialisation_phase_2(config, plugin, args):
         """ Second phase of the initialization process.
 
         :param dict args: parsed arguments from the command line.
         """
+        config.target_init()
+        config.ProcessOptions(args)
+        db_config = ConfigDB()
+        ResourceDB()
+        MappingDB()
+        Timer(db_config.Get('DATE_TIME_FORMAT'))
+        config.init()
+        zest = Zest()
+        zest.init()
+        plugin.init()
         PluginHandler(args)
         Reporter()
         POutputDB()
