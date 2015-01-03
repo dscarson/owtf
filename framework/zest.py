@@ -141,7 +141,8 @@ class Zest(BaseComponent, ZestInterface):
             return False
 
     def StopRecorder(self):
-        self.db_config.Update("ZEST_RECORDING", "False")
+        if(self.db_config.Get("ZEST_RECORDING")!=None):
+            self.db_config.Update("ZEST_RECORDING", "False")
 
     def UpadateRecordScript(self, record_script):  # saves name of record script in config db as web UI runs on different process and cant read value from here.
         self.db_config.Update("RECORD_SCRIPT", record_script)
