@@ -95,8 +95,6 @@ class Config(BaseComponent, ConfigInterface):
             'framework',
             'config',
             'framework_config.cfg'))
-        # The following line must be removed after fixing an issue
-        #self.LoadProfiles({})
 
     def target_init(self):
         self.target = self.get_component("target")

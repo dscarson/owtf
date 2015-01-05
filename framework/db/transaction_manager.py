@@ -63,7 +63,6 @@ class TransactionManager(BaseComponent, TransactionInterface):
         self.db = self.get_component("db")
         self.target = self.get_component("target")
         self.url_manager = self.get_component("url_manager")
-     #  self.zest = self.get_component("zest")
         self.regexs = defaultdict(list)
         for regex_type in REGEX_TYPES:
             self.regexs[regex_type] = {}

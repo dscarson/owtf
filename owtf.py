@@ -502,7 +502,6 @@ def main(args):
             config, plugin = ComponentInitialiser.initialisation_phase_1(owtf_pid, root_dir)
         except DatabaseNotRunningException:
             exit(-1)
-        
         args = process_options(args[1:])       
         ComponentInitialiser.initialisation_phase_2(config, plugin, args)
         core = core_mod.Init(root_dir, owtf_pid, args)  # Initialise Framework.
