@@ -43,11 +43,12 @@ class ComponentInitialiser():
     """
 
     @staticmethod
-    def initialisation_phase_1(owtf_pid, root_dir):
+    def initialisation_phase_1(root_dir, owtf_pid):
         """First phase of the initialization.
 
-        :param int owtf_pid: PID for the OWTF process
-        :param str root_dir: Absolute path to the OWTF root
+        :param str root_dir: Absolute path to the OWTF root.
+        :param int owtf_pid: PID for the OWTF process.
+
         """
         config = Config(root_dir, owtf_pid)
         ErrorHandler()
@@ -100,7 +101,7 @@ class ComponentInitialiser():
         :param list proxy: Proxy configuration parameters
         :param dict options: Options from command line.
         """
-        ServiceLocator.get_component("db").Init()
+        ServiceLocator.get_component("db").init()
         ServiceLocator.get_component("error_handler").init()
         Requester(proxy)
         PluginHelper()

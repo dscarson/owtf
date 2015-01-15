@@ -34,86 +34,59 @@ to communicate with each other
 
 import os
 import sys
-import time
 import signal
 import socket
 import logging
 import multiprocessing
 import subprocess
+
 import tornado
 
-from framework.dependency_management.component_initialiser import ComponentInitialiser
-from framework import timer, error_handler
-from framework.config import config, health_check
-from framework.db import db
-from framework.http import requester
-from framework.http.proxy import proxy, transaction_logger, tor_manager
-from framework.plugin import worker_manager
-from framework.protocols import smb
-from framework.interface import server, cli
-from framework.lib.formatters import ConsoleFormatter, FileFormatter
-from framework.selenium import selenium_handler
-from framework.shell import interactive_shell
-from framework.utils import FileOperations, catch_io_errors, OutputCleaner, OWTFLogger
-from framework.wrappers.set import set_handler
-from framework.lib.general import cprint
 from framework.dependency_management.dependency_resolver import BaseComponent
+from framework.dependency_management.component_initialiser import ComponentInitialiser
+from framework.utils import FileOperations, catch_io_errors, OutputCleaner, OWTFLogger
+from framework.interface import server, cli
+from framework.http.proxy import proxy, transaction_logger
+from framework.plugin import worker_manager
+from framework.lib.formatters import ConsoleFormatter, FileFormatter
 
 
 class Core(BaseComponent):
 
+    """Main entry point for OWTF that manages the OWTF components."""
+
     COMPONENT_NAME = "core"
 
-    """
-    The glue which holds everything together
-    """
-    def __init__(self, root_dir, owtf_pid, args):
+    def __init__(self):
+        """Initialize a Core instance.
+
+        .. note::
+
+            [*] Tightly coupled, cohesive framework components
+            [*] Order is important
+
+            + IO decorated so as to abort on any permission errors
+            + Required folders created
+            + All other components are attached to core: shell, db etc... (using ServiceLocator)
+
+        :return: instance of :class:`framework.core.Core`
+        :rtype::class:`framework.core.Core`
+
+        """
         self.register_in_service_locator()
-        """
-        [*] Tightly coupled, cohesive framework components
-        [*] Order is important
-
-        + IO decorated so as to abort on any permission errors
-        + Required folders created
-        + All other components are attached to core: shell, db etc... (using ServiceLocator)
-        """
-        self.owtf_pid = owtf_pid
         # ------------------------ IO decoration ------------------------ #
-        self.decorate_io()
-
+        self.file_handler = catch_io_errors(logging.FileHandler)
         # -------------------- Component attachment -------------------- #
         self.db = self.get_component("db")
         self.config = self.get_component("config")
         self.db_config = self.get_component("db_config")
-        self.zest = self.get_component("zest")
-        self.zap_api_handler = self.get_component("zap_api")
         self.error_handler = self.get_component("error_handler")
-
         # ----------------------- Directory creation ----------------------- #
         self.create_dirs()
         self.pnh_log_file()  # <-- This is not supposed to be here
-
-        self.timer = self.get_component("timer")
-        self.shell = self.get_component("shell")
         self.enable_logging()
-        self.reporter = self.get_component("reporter")
-        self.selenium = selenium_handler.Selenium()
-        self.interactive_shell = interactive_shell.InteractiveShell()
-        self.set = set_handler.SETHandler()
-        self.smtp = self.get_component("smtp")
-        self.smb = smb.SMB()
-
         # The following attributes will be initialised later
-        self.plugin_helper = None
         self.tor_process = None
-        self.requester = None
-
-        # --------------------------- Init calls --------------------------- #
-        # Nothing as of now
-        self.health_check()
-
-    def health_check(self):
-        self.HealthCheck = health_check.HealthCheck()
 
     def create_dirs(self):
         """
@@ -169,36 +142,21 @@ class Core(BaseComponent):
             except IOError:
                 return False
 
-    def get_child_pids(self, parent_pid):
-        ps_command = subprocess.Popen(
-            "ps -o pid --ppid %d --noheaders" % parent_pid,
-            shell=True,
-            stdout=subprocess.PIPE)
-        output, error = ps_command.communicate()
-        return [int(child_pid) for child_pid in output.readlines("\n")[:-1]]
+    def get_command(self, argv):
+        """Format command to remove directory and space-separated arguments.
 
-    def GetCommand(self, argv):
-        # Format command to remove directory and space-separate arguments.
+        :params list argv: Arguments for the CLI.
+
+        :return: Arguments without directory and space-separated arguments.
+        :rtype: list
+
+        """
         return " ".join(argv).replace(argv[0], os.path.basename(argv[0]))
 
-    def Start_TOR_Mode(self, options):
-        if options['TOR_mode'] is not None:
-            if options['TOR_mode'][0] != "help":
-                if tor_manager.TOR_manager.is_tor_running():
-                    self.tor_process = tor_manager.TOR_manager(options['TOR_mode'])
-                    self.tor_process = self.tor_process.Run()
-                else:
-                    tor_manager.TOR_manager.msg_start_tor(self)
-                    tor_manager.TOR_manager.msg_configure_tor()
-                    self.error_handler.FrameworkAbort("TOR Daemon is not running")
-            else:
-                tor_manager.TOR_manager.msg_configure_tor()
-                self.error_handler.FrameworkAbort("Configuration help is running")
-
-    def StartBotnetMode(self, options):
+    def start_botnet_mode(self, options):
         ComponentInitialiser.intialise_proxy_manager(options)
 
-    def StartProxy(self, options):
+    def start_proxy(self, options):
         # The proxy along with supporting processes are started
         if True:
             # Check if port is in use
@@ -231,15 +189,11 @@ class Core(BaseComponent):
             self.ProxyProcess.start()
             logging.debug("Starting Transaction logger process")
             self.TransactionLogger.start()
-            self.plugin_helper = self.get_component("plugin_helper")
-            self.requester = self.get_component("requester")
             logging.debug(
                 "Proxy transaction's log file at %s",
                 self.db_config.Get("PROXY_LOG"))
         else:
             ComponentInitialiser.initialisation_phase_3(options['OutboundProxy'])
-            self.requester = self.get_component("requester")
-
 
     def enable_logging(self, **kwargs):
         """
@@ -254,7 +208,7 @@ class Core(BaseComponent):
         )
         logger = logging.getLogger()
         logger.setLevel(logging.DEBUG)
-        file_handler = self.FileHandler(
+        file_handler = self.file_handler(
             self.config.FrameworkConfigGetLogPath(process_name),
             mode="w+"
         )
@@ -278,7 +232,12 @@ class Core(BaseComponent):
         logger = logging.getLogger()
         logger.removeHandler(logger.handlers[-1])
 
-    def Start(self, options):
+    def start(self, options):
+        """Start OWTF.
+
+        :params list options: Options from the CLI.
+
+        """
         if self.initialise_framework(options):
             if not options['nowebui']:
                 return self.run_server()
@@ -294,22 +253,21 @@ class Core(BaseComponent):
         ComponentInitialiser.initialisation_phase_3(proxy_infos, options)
         self.initialise_plugin_handler_and_params(options)
         # No processing required, just list available modules.
-        if options['ListPlugins']:
-            self.PluginHandler.ShowPluginList()
-            self.KillChildProcesses(self.owtf_pid)
-            exit(0)
+        if options['list_plugins']:
+            self.PluginHandler.show_plugin_list(options['list_plugins'])
+            self.finish()
         self.config.ProcessOptions(options)
-        command = self.GetCommand(options['argv'])
+        command = self.get_command(options['argv'])
 
-        self.StartBotnetMode(options)
-        self.StartProxy(options)  # Proxy mode is started in that function.
+        self.start_botnet_mode(options)
+        self.start_proxy(options)  # Proxy mode is started in that function.
         # Set anonymised invoking command for error dump info.
         self.error_handler.SetCommand(OutputCleaner.anonymise_command(command))
         return True
 
     def initialise_plugin_handler_and_params(self, options):
         # The order is important here ;)
-        self.PluginHandler = self.get_component("plugin_handler") #plugin_handler.PluginHandler(self, options)
+        self.PluginHandler = self.get_component("plugin_handler")
         self.PluginParams = self.get_component("plugin_params")
         # If OWTF is run without the Web UI, the WorkerManager should exit as
         # soon as all jobs have been completed. Otherwise, keep WorkerManager
@@ -337,71 +295,52 @@ class Core(BaseComponent):
         self.cli_server = cli.CliServer()
         self.cli_server.start()
 
-    def ReportErrorsToGithub(self):
-        cprint(
-            "Do you want to add any extra info to the bug report? "
-            "[Just press Enter to skip]")
-        info = raw_input("> ")
-        cprint(
-            "Do you want to add your GitHub username to the report? "
-            "[Press Enter to skip]")
-        user = raw_input("Reported by @")
-        if self.error_handler.AddGithubIssue(Info=info, User=user):
-            cprint("Github issue added, Thanks for reporting!!")
-        else:
-            cprint("Unable to add github issue, but thanks for trying :D")
+    def finish(self):
+        """Finish OWTF framework after freeing resources.
 
-    def Finish(self, status='Complete', report=True):
+        :return: None
+        :rtype: None
+
+        """
         if getattr(self, "TOR_process", None) is not None:
             self.TOR_process.terminate()
         # TODO: Fix this for lions_2014
         # if self.db_config.Get('SIMULATION'):
         #    exit()
         else:
-            try:
-                self.PluginHandler.CleanUp()
-            except AttributeError:  # DB not instantiated yet!
-                pass
-            finally:
-                if getattr(self, "ProxyMode", None) is not None:
-                    try:
-                        cprint(
-                            "Stopping inbound proxy processes and "
-                            "cleaning up, Please wait!")
-                        self.KillChildProcesses(self.ProxyProcess.pid)
-                        self.ProxyProcess.terminate()
-                        # No signal is generated during closing process by
-                        # terminate()
-                        self.TransactionLogger.poison_q.put('done')
-                        self.TransactionLogger.join()
-                    except:  # It means the proxy was not started.
-                        pass
+            if getattr(self, "PluginHandler", None) is not None:
+                self.PluginHandler.clean_up()
+            if getattr(self, "ProxyProcess", None) is not None:
+                logging.info(
+                    "Stopping inbound proxy processes and cleaning up. Please wait!")
+                self.ProxyProcess.clean_up()
+                self.kill_children(self.ProxyProcess.pid)
+                self.ProxyProcess.terminate()
+            if getattr(self, "TransactionLogger", None) is not None:
+                # No signal is generated during closing process by
+                # terminate()
+                self.TransactionLogger.poison_q.put('done')
+                self.TransactionLogger.join()
+            if getattr(self, "db", None) is not None:
                 # Properly stop any DB instances.
                 self.db.clean_up()
-                # Stop any tornado instance.
-                if hasattr(self, 'cli_server'):
-                    self.cli_server.clean_up()
-                if hasattr(self, 'interface_server'):
-                    self.interface_server.clean_up()
-                tornado.ioloop.IOLoop.instance().stop()
-                exit(0)
+            # Stop any tornado instance.
+            if getattr(self, "cli_server", None) is not None:
+                self.cli_server.clean_up()
+            if getattr(self, "interface_server", None) is not None:
+                self.interface_server.clean_up()
+            tornado.ioloop.IOLoop.instance().stop()
+            exit(0)
 
-    def KillChildProcesses(self, parent_pid, sig=signal.SIGINT):
+    def kill_children(self, parent_pid, sig=signal.SIGINT):
         ps_command = subprocess.Popen(
             "ps -o pid --ppid %d --noheaders" % parent_pid,
             shell=True,
             stdout=subprocess.PIPE)
         ps_output = ps_command.stdout.read()
         for pid_str in ps_output.split("\n")[:-1]:
-            self.KillChildProcesses(int(pid_str), sig)
+            self.kill_children(int(pid_str), sig)
             try:
                 os.kill(int(pid_str), sig)
             except:
-                cprint("unable to kill it")
-
-    def decorate_io(self):
-        self.FileHandler = catch_io_errors(logging.FileHandler)
-
-
-def Init(root_dir, owtf_pid, args):
-    return Core(root_dir, owtf_pid, args)
+                logging.warning("Unable to kill the processus: '%s'", pid_str)

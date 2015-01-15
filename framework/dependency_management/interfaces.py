@@ -111,16 +111,7 @@ class PluginHandlerInterface(AbstractInterface):
     def GetPluginOutputDir(self): pass
 
     @abstractmethod
-    def IsActiveTestingPossible(self): pass
-
-    @abstractmethod
     def NormalRequestsAllowed(self): pass
-
-    @abstractproperty
-    def OnlyPluginsList(self): pass
-
-    @abstractproperty
-    def OnlyPluginsSet(self): pass
 
     @abstractmethod
     def ProcessPlugin(self): pass

@@ -42,7 +42,7 @@ verify_dependencies(os.path.dirname(os.path.abspath(sys.argv[0])) or '.')
 
 
 import argparse
-from framework import core as core_mod
+from framework.core import Core
 from framework.dependency_management.component_initialiser import ComponentInitialiser, DatabaseNotRunningException
 from framework.dependency_management.dependency_resolver import ServiceLocator
 from framework.lib.general import *
@@ -75,7 +75,7 @@ def get_args(args):
                     "http://7-a.org - Twitter: @7a_")
     parser.add_argument(
         "-l", "--list_plugins",
-        dest="ListPlugins",
+        dest="list_plugins",
         default=None,
         choices=valid_plugin_groups,
         help="List available plugins in the plugin group (web, net or aux)")
@@ -344,7 +344,6 @@ def process_options(user_args):
 
     if arg.ExceptPlugins:
         arg.ExceptPlugins, plugin_groups = get_plugins_from_arg(arg.ExceptPlugins)
-        print("ExceptPlugins=" + str(arg.ExceptPlugins))
 
     if arg.TOR_mode:
         arg.TOR_mode = arg.TOR_mode.split(":")
@@ -357,13 +356,13 @@ def process_options(user_args):
         elif len(arg.TOR_mode) != 5:
             usage("Invalid argument for TOR-mode")
         else:
-            #Enables OutboundProxy
+            # Enables OutboundProxy.
             if arg.TOR_mode[0] == '':
                 outbound_proxy_ip = "127.0.0.1"
             else:
                 outbound_proxy_ip = arg.TOR_mode[0]
             if arg.TOR_mode[1] == '':
-                outbound_proxy_port = "9050" #default TOR port
+                outbound_proxy_port = "9050"  # default TOR port
             else:
                 outbound_proxy_port = arg.TOR_mode[1]
             arg.OutboundProxy = "socks://" + outbound_proxy_ip + \
@@ -423,7 +422,7 @@ def process_options(user_args):
 
     scope = arg.Targets or []  # Arguments at the end are the URL target(s)
     num_targets = len(scope)
-    if plugin_group != 'aux' and num_targets == 0 and not arg.ListPlugins:
+    if plugin_group != 'aux' and num_targets == 0 and not arg.list_plugins:
         #usage("") OMG, #TODO: Fix this
         pass
     elif num_targets == 1:  # Check if this is a file
@@ -451,7 +450,7 @@ def process_options(user_args):
         # parameters.
         scope = ['aux']
     return {
-        'ListPlugins': arg.ListPlugins,
+        'list_plugins': arg.list_plugins,
         'Force_Overwrite': arg.ForceOverwrite,
         'Interactive': arg.Interactive == 'yes',
         'Simulation': arg.Simulation,
@@ -476,15 +475,15 @@ def process_options(user_args):
 
 def run_owtf(core, args):
     try:
-        if core.Start(args):
+        if core.start(args):
             # Only if Start is for real (i.e. not just listing plugins, etc)
-            core.Finish("Complete")  # Not Interrupted or Crashed.
+            core.finish()  # Not Interrupted or Crashed.
     except KeyboardInterrupt:
         # NOTE: The user chose to interact: interactivity check redundant here:
         cprint("\nowtf was aborted by the user:")
         cprint("Please check report/plugin output files for partial results")
         # Interrupted. Must save the DB to disk, finish report, etc.
-        core.Finish("Aborted by user")
+        core.finish()
     except SystemExit:
         pass  # Report already saved, framework tries to exit.
     finally:  # Needed to rename the temp storage dirs to avoid confusion.
@@ -499,12 +498,13 @@ def main(args):
     owtf_pid = os.getpid()
     if not "--update" in args[1:]:
         try:
-            config, plugin = ComponentInitialiser.initialisation_phase_1(owtf_pid, root_dir)
+            config, plugin = ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid,)
         except DatabaseNotRunningException:
             exit(-1)
         args = process_options(args[1:])       
         ComponentInitialiser.initialisation_phase_2(config, plugin, args)
-        core = core_mod.Init(root_dir, owtf_pid, args)  # Initialise Framework.
+        # Initialise Framework.
+        core = Core()
         logging.warn(
             "OWTF Version: %s, Release: %s " % (
                 ServiceLocator.get_component("config").FrameworkConfigGet('VERSION'),
@@ -530,7 +530,6 @@ def main(args):
                 updater.set_proxy(arg.OutboundProxy)
         # Update method called to perform update.
         updater.update()
-
 
 if __name__ == "__main__":
     main(sys.argv)

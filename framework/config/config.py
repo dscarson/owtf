@@ -38,8 +38,11 @@ import re
 import logging
 import socket
 
+from copy import deepcopy
+
 from urlparse import urlparse
 from collections import defaultdict
+
 from framework.dependency_management.dependency_resolver import BaseComponent
 from framework.dependency_management.interfaces import ConfigInterface
 
@@ -54,7 +57,7 @@ from framework.utils import NetworkOperations, FileOperations
 
 REPLACEMENT_DELIMITER = "@@@"
 REPLACEMENT_DELIMITER_LENGTH = len(REPLACEMENT_DELIMITER)
-CONFIG_TYPES = [ 'string', 'other' ]
+CONFIG_TYPES = ['string', 'other']
 
 
 class Config(BaseComponent, ConfigInterface):
@@ -100,19 +103,16 @@ class Config(BaseComponent, ConfigInterface):
         self.target = self.get_component("target")
 
     def init(self):
+        """Initialize the Option resources."""
         self.resource = self.get_component("resource")
         self.error_handler = self.get_component("error_handler")
         self.db_plugin = self.get_component("db_plugin")
         self.worklist_manager = self.get_component("worklist_manager")
 
-
     def initialize_attributes(self):
         self.Config = defaultdict(list)  # General configuration information.
         for type in CONFIG_TYPES:
             self.Config[type] = {}
-
-    def Init(self):
-        self.HealthCheck = health_check.HealthCheck()
 
     def LoadFrameworkConfigFromFile(self, config_path):
         """Load the configuration from into a global dictionary."""
@@ -143,6 +143,13 @@ class Config(BaseComponent, ConfigInterface):
         return (not(string in ['False', 'false', 0, '0']))
 
     def ProcessOptions(self, options):
+        """Process the options from the CLI.
+
+        :param dict options: Options coming from the CLI.
+
+        """
+        # Backup the raw CLI options in case they are needed later.
+        self.cli_options = deepcopy(options)
         self.LoadProfiles(options['Profiles'])
         target_urls = self.LoadTargets(options)
         self.LoadWork(options, target_urls)
@@ -160,7 +167,9 @@ class Config(BaseComponent, ConfigInterface):
                     "group": options["PluginGroup"],
                 }
             else:
-                filter_data = {"code": options["OnlyPlugins"]}
+                filter_data = {
+                    "code": options.get("OnlyPlugins"),
+                    "type": options.get("PluginType")}
             plugins = self.db_plugin.GetAll(filter_data)
             force_overwrite = options["Force_Overwrite"]
             self.worklist_manager.add_work(
