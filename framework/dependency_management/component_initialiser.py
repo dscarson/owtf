@@ -57,7 +57,7 @@ class ComponentInitialiser():
             OWTFSessionDB()
         except:
             raise DatabaseNotRunningException()
-        WorklistManager()
+        work = WorklistManager()
         CommandRegister()
         TargetDB()
         error = ErrorDB()
@@ -65,27 +65,31 @@ class ComponentInitialiser():
         URLManager()
         TransactionManager()
         plugin = PluginDB()
-        return (config,plugin)
+        return (config,plugin,work)
 
     @staticmethod
-    def initialisation_phase_2(config, plugin, args):
+    def initialisation_phase_2(config, plugin, work, args):
         """ Second phase of the initialization process.
 
         :param dict args: parsed arguments from the command line.
         """
         config.target_init()
-        config.ProcessOptions(args)
+        pout = POutputDB()
+        work.pout_init()
         db_config = ConfigDB()
+        Timer(db_config.Get('DATE_TIME_FORMAT'))
+        plugin.timer_init()    
+        config.ProcessOptions(args)
+        db_config.init()
         ResourceDB()
         MappingDB()
-        Timer(db_config.Get('DATE_TIME_FORMAT'))
         config.init()
         zest = Zest()
         zest.init()
         plugin.init()
         PluginHandler(args)
         Reporter()
-        POutputDB()
+        pout.init()
         ServiceLocator.get_component("command_register").init()
         ServiceLocator.get_component("worklist_manager").init()
         Shell()

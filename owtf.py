@@ -498,11 +498,11 @@ def main(args):
     owtf_pid = os.getpid()
     if not "--update" in args[1:]:
         try:
-            config, plugin = ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid,)
+            config, plugin, work = ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid,)
         except DatabaseNotRunningException:
             exit(-1)
         args = process_options(args[1:])       
-        ComponentInitialiser.initialisation_phase_2(config, plugin, args)
+        ComponentInitialiser.initialisation_phase_2(config, plugin, work, args)
         # Initialise Framework.
         core = Core()
         logging.warn(

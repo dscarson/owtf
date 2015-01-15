@@ -101,13 +101,14 @@ class Config(BaseComponent, ConfigInterface):
 
     def target_init(self):
         self.target = self.get_component("target")
+        self.db_plugin = self.get_component("db_plugin")
+        self.error_handler = self.get_component("error_handler")
+        self.worklist_manager = self.get_component("worklist_manager")
 
     def init(self):
         """Initialize the Option resources."""
         self.resource = self.get_component("resource")
-        self.error_handler = self.get_component("error_handler")
-        self.db_plugin = self.get_component("db_plugin")
-        self.worklist_manager = self.get_component("worklist_manager")
+        
 
     def initialize_attributes(self):
         self.Config = defaultdict(list)  # General configuration information.

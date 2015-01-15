@@ -47,9 +47,11 @@ class WorklistManager(BaseComponent):
         self.target = None
         self.db_plugin = None
 
+    def pout_init(self):
+        self.plugin_output = self.get_component("plugin_output")
+
     def init(self):
         self.target = self.get_component("target")
-        self.plugin_output = self.get_component("plugin_output")
         self.db_plugin = self.get_component("db_plugin")
 
     def _generate_query(self, criteria=None, for_stats=False):

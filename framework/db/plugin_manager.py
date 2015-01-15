@@ -20,10 +20,11 @@ class PluginDB(BaseComponent, DBPluginInterface):
         self.db = self.get_component("db")
         self.error_handler = self.get_component("error_handler")
 
+    def timer_init(self):
+        self.timer = self.get_component("timer")
 
     def init(self):
         self.config = self.get_component("config")
-        self.timer = self.get_component("timer")
         self.LoadWebTestGroups(self.config.FrameworkConfigGet("WEB_TEST_GROUPS"))
         self.LoadNetTestGroups(self.config.FrameworkConfigGet("NET_TEST_GROUPS"))
         self.LoadFromFileSystem()  # Load plugins :P

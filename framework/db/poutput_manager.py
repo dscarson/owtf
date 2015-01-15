@@ -14,13 +14,17 @@ class POutputDB(BaseComponent, PluginOutputInterface):
 
     def __init__(self):
         self.register_in_service_locator()
+        self.target = self.get_component("target")
+        self.db = self.get_component("db")
+
+    def init(self):
+        self.register_in_service_locator()
         self.config = self.get_component("config")
         self.plugin_handler = self.get_component("plugin_handler")
         self.reporter = self.get_component("reporter")
-        self.target = self.get_component("target")
         self.db_config = self.get_component("db_config")
         self.timer = self.get_component("timer")
-        self.db = self.get_component("db")
+
 
     def PluginOutputExists(self, plugin_key, target_id):
         count = self.db.session.query(models.PluginOutput).filter_by(target_id=target_id, plugin_key=plugin_key).count()
