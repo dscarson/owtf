@@ -61,9 +61,9 @@ class ComponentInitialiser():
         db_config = ConfigDB()
         CommandRegister()
         TargetDB()
-        ResourceDB()
+        res_db = ResourceDB()
         ErrorDB()
-        MappingDB()
+        map_db = MappingDB()
         VulnexpDB()
         Timer(db_config.Get('DATE_TIME_FORMAT'))
         PluginDB()
@@ -72,13 +72,17 @@ class ComponentInitialiser():
         TransactionManager()
         config.init()
         zest.init()
+        return (config, db_config, res_db, map_db)
 
     @staticmethod
-    def initialisation_phase_2(args):
+    def initialisation_phase_2(config, db_config, res_db, map_db, args):
         """ Second phase of the initialization process.
 
         :param dict args: parsed arguments from the command line.
         """
+        db_config.init()
+        res_db.init()
+        map_db.init()
         PluginHandler(args)
         Reporter()
         POutputDB()

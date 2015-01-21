@@ -498,15 +498,17 @@ def main(args):
     owtf_pid = os.getpid()
     if not "--update" in args[1:]:
         try:
-            ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid)
+            config, db_config, res_db, map_db = ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid)
         except DatabaseNotRunningException:
             exit(-1)
 
         args = process_options(args[1:])
-        ComponentInitialiser.initialisation_phase_2(args)
-
         # Initialise Framework.
         core = Core()
+        core.config.ProcessOptions(args, True)
+        ComponentInitialiser.initialisation_phase_2(config, db_config, res_db, map_db, args)
+
+        
         logging.warn(
             "OWTF Version: %s, Release: %s " % (
                 ServiceLocator.get_component("config").FrameworkConfigGet('VERSION'),

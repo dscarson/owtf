@@ -99,7 +99,7 @@ class Config(BaseComponent, ConfigInterface):
             'config',
             'framework_config.cfg'))
         # The following line must be removed after fixing an issue
-        self.LoadProfiles({})
+        #self.LoadProfiles({})
 
     def init(self):
         """Initialize the Option resources."""
@@ -142,17 +142,20 @@ class Config(BaseComponent, ConfigInterface):
     def ConvertStrToBool(self, string):
         return (not(string in ['False', 'false', 0, '0']))
 
-    def ProcessOptions(self, options):
+    def ProcessOptions(self, options, flag):
         """Process the options from the CLI.
 
         :param dict options: Options coming from the CLI.
 
         """
         # Backup the raw CLI options in case they are needed later.
-        self.cli_options = deepcopy(options)
-        self.LoadProfiles(options['Profiles'])
-        target_urls = self.LoadTargets(options)
-        self.LoadWork(options, target_urls)
+        if flag:
+            self.cli_options = deepcopy(options)
+            self.LoadProfiles(options['Profiles'])
+            
+        else:
+            target_urls = self.LoadTargets(options)
+            self.LoadWork(options, target_urls)
 
     def LoadWork(self, options, target_urls):
         """
