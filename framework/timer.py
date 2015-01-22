@@ -48,8 +48,10 @@ class Timer(BaseComponent, TimerInterface):
     # time.
     Time = {}
 
-    def __init__(self, datetime_format="%d/%m/%Y-%H:%M"):
+    def __init__(self):
         self.register_in_service_locator()
+
+    def init(self, datetime_format="%d/%m/%Y-%H:%M"):
         self.date_time_format = datetime_format
 
     def start_timer(self, offSet='0'):

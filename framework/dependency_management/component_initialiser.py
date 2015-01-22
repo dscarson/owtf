@@ -65,22 +65,23 @@ class ComponentInitialiser():
         ErrorDB()
         map_db = MappingDB()
         VulnexpDB()
-        Timer(db_config.Get('DATE_TIME_FORMAT'))
+        timer = Timer()
         PluginDB()
         zest = Zest()
         URLManager()
         TransactionManager()
         config.init()
         zest.init()
-        return (config, db_config, res_db, map_db)
+        return (config, db_config, res_db, map_db, timer)
 
     @staticmethod
-    def initialisation_phase_2(config, db_config, res_db, map_db, args):
+    def initialisation_phase_2(config, db_config, res_db, map_db, timer,args):
         """ Second phase of the initialization process.
 
         :param dict args: parsed arguments from the command line.
         """
         db_config.init()
+        timer.init(db_config.Get('DATE_TIME_FORMAT'))
         res_db.init()
         map_db.init()
         PluginHandler(args)

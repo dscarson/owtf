@@ -498,7 +498,7 @@ def main(args):
     owtf_pid = os.getpid()
     if not "--update" in args[1:]:
         try:
-            config, db_config, res_db, map_db = ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid)
+            config, db_config, res_db, map_db, timer = ComponentInitialiser.initialisation_phase_1(root_dir, owtf_pid)
         except DatabaseNotRunningException:
             exit(-1)
 
@@ -506,7 +506,7 @@ def main(args):
         # Initialise Framework.
         core = Core()
         core.config.ProcessOptions(args, True)
-        ComponentInitialiser.initialisation_phase_2(config, db_config, res_db, map_db, args)
+        ComponentInitialiser.initialisation_phase_2(config, db_config, res_db, map_db, timer,args)
 
         
         logging.warn(
