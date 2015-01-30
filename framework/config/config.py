@@ -73,7 +73,6 @@ class Config(BaseComponent, ConfigInterface):
         "NET_PLUGIN_ORDER_PROFILE": None,
         "MAPPING_PROFILE": None
     }
-
     Target = None
 
     def __init__(self, root_dir, owtf_pid):
@@ -155,30 +154,55 @@ class Config(BaseComponent, ConfigInterface):
             
         else:
             target_urls = self.LoadTargets(options)
-            self.LoadWork(options, target_urls)
+            self.load_works(target_urls, options)
+        
+    def load_works(self, target_urls, options):
+        """Select the proper plugins to run against the target URLs.
 
-    def LoadWork(self, options, target_urls):
+        :param list target_urls: the target URLs
+        :param dict options: the options from the CLI.
+
         """
-        Add plugins and targets to worklist
+        for target_url in target_urls:
+            if target_url:
+                self.load_work(target_url, options)
+
+    def load_work(self, target_url, options):
+        """Select the proper plugins to run against the target URL.
+
+        .. note::
+
+            If plugin group is not specified and several targets are fed, OWTF
+            will run the WEB plugins for targets that are URLs and the NET
+            plugins for the ones that are IP addresses.
+
+        :param str target_url: the target URL
+        :param dict options: the options from the CLI.
+
         """
-        if len(target_urls) != 0:
-            targets = self.target.GetTargetConfigs({
-                "target_url": target_urls})
-            if options["OnlyPlugins"] is None:
-                filter_data = {
-                    "type": options["PluginType"],
-                    "group": options["PluginGroup"],
-                }
-            else:
-                filter_data = {
-                    "code": options.get("OnlyPlugins"),
-                    "type": options.get("PluginType")}
-            plugins = self.db_plugin.GetAll(filter_data)
-            force_overwrite = options["Force_Overwrite"]
-            self.worklist_manager.add_work(
-                targets,
-                plugins,
-                force_overwrite=force_overwrite)
+        target = self.target.GetTargetConfigs({'target_url': target_url})
+        if options['OnlyPlugins'] is None:
+            group = options['PluginGroup']
+            # If the plugin group option is the default one (not specified by
+            # the user).
+            if group is None:
+                group = 'web'
+                # Test if the target is an IP and if so, force the group to
+                # 'net' (see #375).
+                hostname = urlparse(target_url).hostname
+                ip = self.GetIPFromHostname(hostname)
+                if self.hostname_is_ip(hostname, ip):
+                    group = 'net'
+            filter_data = {'type': options['PluginType'], 'group': group}
+        else:
+            filter_data = {
+                "code": options.get("OnlyPlugins"),
+                "type": options.get("PluginType")}
+        plugins = self.db_plugin.GetAll(filter_data)
+        self.worklist_manager.add_work(
+            target,
+            plugins,
+            force_overwrite=options["Force_Overwrite"])
 
     def get_profile_path(self, profile_name):
         return(self.Profiles.get(profile_name, None))
@@ -314,7 +338,7 @@ class Config(BaseComponent, ConfigInterface):
         target_config['top_domain'] = target_config['host_name']
 
         hostname_chunks = target_config['host_name'].split('.')
-        if self.IsHostNameNOTIP(host, host_IP) and len(hostname_chunks) > 2:
+        if not self.hostname_is_ip(host, host_IP) and len(hostname_chunks) > 2:
             # Get "example.com" from "www.example.com"
             target_config['top_domain'] = '.'.join(hostname_chunks[1:])
         # Set the top URL.
@@ -388,8 +412,17 @@ class Config(BaseComponent, ConfigInterface):
     def GetTXTTransaclog(self, partial=False):
         return self.GetFileName('TRANSACTION_LOG_TXT', partial)
 
-    def IsHostNameNOTIP(self, host_name, host_ip):
-        return host_name != host_ip  # Host.
+    def hostname_is_ip(self, hostname, ip):
+        """Test if the hostname is an IP.
+
+        :param str hostname: the hostname of the target.
+        :param str ip: the IP (v4 or v6) of the target.
+
+        :return: ``True`` if the hostname is an IP, ``False`` otherwise.
+        :rtype: :class:`bool`
+
+        """
+        return hostname == ip
 
     def GetIPFromHostname(self, hostname):
         ip = ''
